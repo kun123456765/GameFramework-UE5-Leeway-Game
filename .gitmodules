@@ -1,0 +1,6 @@
+[submodule "Source"]
+	path = Source
+	url = git@github.com:kun123456765/GameFramework-UE5-Source.git
+[submodule "Binaries"]
+	path = Binaries
+	url = git@github.com:kun123456765/GameFramework-UE5-Binaries.git
