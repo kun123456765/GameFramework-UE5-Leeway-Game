@@ -1,0 +1,15 @@
+#--------------------
+# kun 2024.07.18
+#--------------------
+
+# ide locally
+.vs/
+.vscode/
+.vsconfig
+
+# ue locally
+*.sln
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
