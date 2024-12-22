@@ -1,10 +1,12 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+//--------------------
+// kun 2024.12.22
+//--------------------
 
 using UnrealBuildTool;
 
-public class Game : ModuleRules
+public class Leeway : ModuleRules
 {
-    public Game(ReadOnlyTargetRules Target) : base(Target)
+    public Leeway(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
@@ -17,7 +19,6 @@ public class Game : ModuleRules
             "EnhancedInput",
             "AIModule",
             "Niagara",
-            "Leeway",
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]

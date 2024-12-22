@@ -14,3 +14,5 @@ DerivedDataCache/
 Intermediate/
 Saved/
 /Game.uproject
+/Source/Game/TP_TopDown
+/Build/Windows/FileOpenOrder/*.log
