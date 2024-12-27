@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{DFC2D86A-403A-40CD-E96A-BDBE7346411C}",
+	"EngineAssociation": "{DA1C4C13-4C20-4310-C1A9-8FA142AFB567}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -17,6 +17,13 @@
 			"TargetAllowList": [
 				"Editor"
 			]
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
 		}
+	],
+	"TargetPlatforms": [
+		"Windows"
 	]
 }

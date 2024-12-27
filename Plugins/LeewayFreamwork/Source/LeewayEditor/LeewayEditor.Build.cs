@@ -1,10 +1,12 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+//--------------------
+// kun 2024.12.22
+//--------------------
 
 using UnrealBuildTool;
 
-public class Game : ModuleRules
+public class LeewayEditor : ModuleRules
 {
-    public Game(ReadOnlyTargetRules Target) : base(Target)
+    public LeewayEditor(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
