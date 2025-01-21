@@ -9,7 +9,10 @@
 #include "BaseGameMode.generated.h"
 
 UCLASS(MinimalAPI, Blueprintable)
-class ABaseGameMode : public AGameMode
+class ABaseGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+
+public:
+	ABaseGameMode();
 };

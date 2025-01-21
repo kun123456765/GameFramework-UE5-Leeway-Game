@@ -3,3 +3,9 @@
 //--------------------
 
 #include "BasePlayer.h"
+#include "Leeway/Component/BaseCharacterMovementComponent.h"
+
+ABasePlayer::ABasePlayer(const FObjectInitializer& ObjectInitializer)
+    :Super(ObjectInitializer.SetDefaultSubobjectClass<UBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
+{
+}

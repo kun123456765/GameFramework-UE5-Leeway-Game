@@ -74,4 +74,17 @@ DerivedDataCache/*
 # Visual code project files
 .vscode
 
-
+# ~Begin Leeway Testing Directories
+# 只有 Game_template.uproject 这一个需要传;
+*.uproject
+# 更换看不同插件的时候需要备份各版本Config
+Config_*/
+Templates/*
+Resources/*
+# UE5的恢复文件内容的临时文件存放路径
+enc_temp_folder/*
+# svn新版本搞出来的东西，不确定有没有用
+/.vsconfig
+# 代码框架插件化后编译产生的东西
+Plugins/*/Binaries/*
+# ~End Leeway Testing Directories

@@ -12,4 +12,10 @@ UCLASS(MinimalAPI, Blueprintable)
 class ABasePlayer : public ABaseCharacter
 {
 	GENERATED_BODY()
+public:
+	ABasePlayer(const FObjectInitializer& ObjectInitializer);
+#pragma region Locomotion
+	
+
+#pragma endregion Locomotion
 };
