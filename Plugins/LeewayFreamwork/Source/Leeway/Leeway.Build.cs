@@ -3,15 +3,19 @@
 //--------------------
 
 using UnrealBuildTool;
+using UnrealBuildTool.Rules;
 
 public class Leeway : ModuleRules
 {
     public Leeway(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        // 添加预编译头文件
+        PrivatePCHHeaderFile = "PreEngine/Runtime/Core/Private/LeewayPCH.h";
 
         PublicDependencyModuleNames.AddRange(new string[]
         {
+            //defaults
             "Core",
             "CoreUObject",
             "Engine",
@@ -19,19 +23,32 @@ public class Leeway : ModuleRules
             "EnhancedInput",
             "AIModule",
             "Niagara",
+
+            //add by kun 2025.01.17 for locomotion
+            "AnimGraphRuntime",
+            //add by kun 2025.01.17 for locomotion
+            "GameplayTags",
+            //add by kun 2025.01.21 for GAS
+            "GameplayAbilities",
+            //add by kun 2025.01.22 for GAS
+			"GameplayTasks",
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]
         {
-
+            //add by kun 2025.01.17 for locomotion
+            "AnimGraph",
+            //add by kun 2025.01.17 for locomotion
+            "AnimationLocomotionLibraryRuntime",
         });
 
-        // Uncomment if you are using Slate UI
-        // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-
-        // Uncomment if you are using online features
-        // PrivateDependencyModuleNames.Add("OnlineSubsystem");
-
-        // To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
+        if (Target.bBuildEditor)
+        {
+            PrivateDependencyModuleNames.AddRange(new string[]
+            {
+                //add by kun 2025.01.17 for locomotion
+                "AnimationBlueprintLibrary",
+            });
+        }
     }
 }
