@@ -8,8 +8,8 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
-UCLASS(MinimalAPI,Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class ABasePlayerController : public APlayerController
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };

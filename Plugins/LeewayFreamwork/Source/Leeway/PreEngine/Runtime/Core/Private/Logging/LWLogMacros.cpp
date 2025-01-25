@@ -11,7 +11,7 @@ TCHAR* NSLeeway::GetTraceStack(int SkipDepth, int WalkDepth)
 #if UE_EDITOR
     static TCHAR Buffer[65535];
     Buffer[0] = TCHAR('\0');
-    TArray<FProgramCounterSymbolInfo> Stacks = FPlatformStackWalk::GetStack(SkipDepth, WalkDepth);
+    TArray<FProgramCounterSymbolInfo> Stacks = FGenericPlatformStackWalk::GetStack(SkipDepth, WalkDepth);
     for (int i = 0; i < Stacks.Num(); i++)
     {
         auto& Stack = Stacks[i];
@@ -24,4 +24,33 @@ TCHAR* NSLeeway::GetTraceStack(int SkipDepth, int WalkDepth)
     }
     return Buffer;
 #endif
+}
+
+inline NSLeeway::FLWIntACC::FLWIntACC(const TCHAR* Name, uint32 Mod, uint32 Flags)
+    :FAutoConsoleCommandWithWorldArgsAndOutputDevice(Name
+        , Text_LogLevelHelp
+        , FConsoleCommandWithWorldArgsAndOutputDeviceDelegate::CreateSP(this, FLWIntACC::Command)
+        , Flags)
+{
+}
+
+inline void NSLeeway::FLWIntACC::Command(const TArray<FString>& Args, UWorld* World, FOutputDevice& Output)
+{
+    if (Args.IsValidIndex(0))
+    {
+        if (!Args[0].IsEmpty())
+        {
+            LexFromString(ASCLogLevel, *Args[0]);
+            return;
+        }
+    }
+
+    if (Mod > 0)
+    {
+        Value = (Value + 1) % Mod;
+    }
+    else
+    {
+        Value = 0;
+    }
 }

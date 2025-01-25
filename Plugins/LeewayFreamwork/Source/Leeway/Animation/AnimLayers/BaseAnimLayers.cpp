@@ -99,8 +99,8 @@ void UBaseAnimLayers::SetSequence(const FLayerAnimSetBase& AnimLayer, FAnimUpdat
         EAnimNodeReferenceConversionResult Result = EAnimNodeReferenceConversionResult::Succeeded;
         FSequencePlayerReference SPRef = USequencePlayerLibrary::ConvertToSequencePlayer(Node, Result);
         
-        //note by kun 2025.01.21
-        //uncomment for directly cut;
+        // note by kun 2025.01.21
+        // uncomment for directly cut;
         //USequencePlayerLibrary::SetSequence(SPRef, AnimSequence);
 
         USequencePlayerLibrary::SetSequenceWithInertialBlending(Context, SPRef, AnimSequence, AnimLayerSettings.SetSequenceBlendingTime);

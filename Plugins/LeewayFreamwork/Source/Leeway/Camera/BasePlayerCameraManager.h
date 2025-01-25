@@ -8,7 +8,7 @@
 #include "Camera/PlayerCameraManager.h"
 #include "BasePlayerCameraManager.generated.h"
 
-UCLASS(MinimalAPI, Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class ABasePlayerCameraManager : public APlayerCameraManager
 {
 	GENERATED_BODY()

@@ -8,7 +8,7 @@
 #include "Abilities/Tasks/AbilityTask.h"
 #include "BaseAbilityTask.generated.h"
 
-UCLASS(MinimalAPI, Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class UBaseAbilityTask : public UAbilityTask
 {
 	GENERATED_BODY()

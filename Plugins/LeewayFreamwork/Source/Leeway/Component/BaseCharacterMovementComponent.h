@@ -21,7 +21,7 @@ struct FAnimParams
     FGameplayTag CurrentAnimLayersTag;
 };
 
-UCLASS(MinimalAPI)
+UCLASS(MinimalAPI, Blueprintable)
 class UBaseCharacterMovementComponent : public UCharacterMovementComponent
 {
     GENERATED_BODY()

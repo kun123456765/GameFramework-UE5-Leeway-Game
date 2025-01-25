@@ -14,6 +14,11 @@ class ABasePlayer : public ABaseCharacter
 	GENERATED_BODY()
 public:
 	ABasePlayer(const FObjectInitializer& ObjectInitializer);
+
+protected:
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override;
+
 #pragma region Locomotion
 	
 

@@ -8,7 +8,7 @@
 #include "GameFramework/GameState.h"
 #include "BaseGameState.generated.h"
 
-UCLASS(MinimalAPI, Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class ABaseGameState : public AGameState
 {
 	GENERATED_BODY()

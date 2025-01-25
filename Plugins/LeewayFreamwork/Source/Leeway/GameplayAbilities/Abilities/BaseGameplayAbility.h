@@ -36,7 +36,7 @@ OnGiveAbility
 	CancelAbility
 OnRemoveAbility
 */
-UCLASS(MinimalAPI, Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class UBaseGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
@@ -214,4 +214,6 @@ public:
 
 	//~End GameplayAbility
 #endif
+
+	virtual bool DoesAbilitySatisfyTagRequirements(const UAbilitySystemComponent& AbilitySystemComponent, const FGameplayTagContainer* SourceTags = nullptr, const FGameplayTagContainer* TargetTags = nullptr, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 };

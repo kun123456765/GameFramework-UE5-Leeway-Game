@@ -69,7 +69,7 @@ struct FAnimGraphContext
     FAnimGraphContext_Motion Motion;
 };
 
-UCLASS(Blueprintable, MinimalAPI)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class UBaseAnimInstance : public UAnimInstance
 {
     GENERATED_BODY()

@@ -8,7 +8,7 @@
 #include "GameFramework/GameMode.h"
 #include "BaseGameMode.generated.h"
 
-UCLASS(MinimalAPI, Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class ABaseGameMode : public AGameModeBase
 {
 	GENERATED_BODY()

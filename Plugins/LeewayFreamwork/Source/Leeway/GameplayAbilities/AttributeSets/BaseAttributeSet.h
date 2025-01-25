@@ -10,16 +10,12 @@
 #include "BaseAttributeSet.generated.h"
 
 #define ATTRIBUTE_ACCESSORS(ClassName, PropertyName)\
-public:\
-	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName)\
-	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName)\
-	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName)\
-	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)\
-private:\
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))\
-	FGameplayAttributeData PropertyName;
+	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName);\
+	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName);\
+	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName);\
+	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName);\
 
-UCLASS(MinimalAPI, Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class UBaseAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()

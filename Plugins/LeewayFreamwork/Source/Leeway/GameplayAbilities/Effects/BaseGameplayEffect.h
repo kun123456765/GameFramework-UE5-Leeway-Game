@@ -8,7 +8,7 @@
 #include "GameplayEffect.h"
 #include "BaseGameplayEffect.generated.h"
 
-UCLASS(MinimalAPI, Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class UBaseGameplayEffect : public UGameplayEffect
 {
 	GENERATED_BODY()

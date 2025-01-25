@@ -29,7 +29,7 @@ struct FAnimLayersSettings
     FFloatInterval PlayRateMatchSpeedClamp = FFloatInterval(0.8f, 1.2f);
 };
 
-UCLASS(Blueprintable, MinimalAPI)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class UBaseAnimLayers : public UAnimInstance
 {
     GENERATED_BODY()

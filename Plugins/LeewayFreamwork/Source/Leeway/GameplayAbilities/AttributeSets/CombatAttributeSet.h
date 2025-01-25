@@ -13,7 +13,26 @@ class UCombatAttributeSet : public UBaseAttributeSet
 {
 	GENERATED_BODY()
 
-private:
+public:
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Health);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Shield);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Healing);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, ReplenishShield);
+
+private:
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData Health;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData MaxHealth;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData Shield;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData Healing;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData ReplenishShield;
 };

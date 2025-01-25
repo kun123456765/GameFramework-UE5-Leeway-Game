@@ -56,8 +56,6 @@ void AGamePlayer::BeginPlay()
 {
     // Call the base class  
     Super::BeginPlay();
-
-    UE_CLOG_EX(2, LogTemp, Log, TEXT("AGamePlayer: path = %s"), *this->GetPathName());
 }
 
 //////////////////////////////////////////////////////////////////////////

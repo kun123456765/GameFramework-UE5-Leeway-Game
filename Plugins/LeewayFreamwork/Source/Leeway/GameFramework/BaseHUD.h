@@ -8,7 +8,7 @@
 #include "GameFramework/HUD.h"
 #include "BaseHUD.generated.h"
 
-UCLASS(MinimalAPI, Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class ABaseHUD : public AHUD
 {
 	GENERATED_BODY()

@@ -6,9 +6,10 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
+#include "Engine/DataAsset.h"
 #include "BaseAbilitySystemComponent.generated.h"
 
-UCLASS(MinimalAPI, Blueprintable)
+UCLASS(MinimalAPI, Blueprintable, Abstract)
 class UBaseAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
@@ -37,9 +38,6 @@ public:
 	virtual void InhibitActiveGameplayEffect(FActiveGameplayEffectHandle ActiveGEHandle, bool bInhibit, bool bInvokeGameplayCueEvents);
 	virtual FActiveGameplayEffectHandle SetActiveGameplayEffectInhibit(FActiveGameplayEffectHandle&& ActiveGEHandle, bool bInhibit, bool bInvokeGameplayCueEvents);
 	virtual void OnGameplayEffectDurationChange(struct FActiveGameplayEffect& ActiveEffect);
-	virtual void NotifyAbilityCommit(UGameplayAbility* Ability);
-	virtual void NotifyAbilityActivated(const FGameplayAbilitySpecHandle Handle, UGameplayAbility* Ability);
-	virtual void NotifyAbilityFailed(const FGameplayAbilitySpecHandle Handle, UGameplayAbility* Ability, const FGameplayTagContainer& FailureReason);
 	virtual int32 HandleGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload);
 	virtual void ModifyActiveEffectStartTime(FActiveGameplayEffectHandle Handle, float StartTimeDiff);
 	virtual int32 RemoveActiveEffects(const FGameplayEffectQuery& Query, int32 StacksToRemove = -1);
@@ -77,4 +75,122 @@ public:
 	virtual void LocalInputCancel();
 	virtual void TargetConfirm();
 #endif
+
+public:
+    // note by kun 2025.01.24
+    // 初始化使用的Actor的相关基本信息，GAS系统启动的入口;
+	// 已存在的GA/GE并不会删除，但是会得知这个变化(OnAvatarSet);
+	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
+	// 清理使用的Actor相关;
+	virtual void ClearActorInfo() override;
+
+	// note by kun 2025.01.24
+	// 监听GA执行情况的接口;
+	virtual void NotifyAbilityCommit(UGameplayAbility* Ability) override;
+	virtual void NotifyAbilityActivated(const FGameplayAbilitySpecHandle Handle, UGameplayAbility* Ability) override;
+	virtual void NotifyAbilityFailed(const FGameplayAbilitySpecHandle Handle, UGameplayAbility* Ability, const FGameplayTagContainer& FailureReason) override;
+
+	//--------------------
+	// note by kun 2025.01.25
+	// montage相关的接口;
+
+	virtual float PlayMontage(UGameplayAbility* AnimatingAbility, FGameplayAbilityActivationInfo ActivationInfo, UAnimMontage* Montage, float InPlayRate, FName StartSectionName = NAME_None, float StartTimeSeconds = 0.0f) override;
+	virtual UAnimMontage* PlaySlotAnimationAsDynamicMontage(UGameplayAbility* AnimatingAbility, FGameplayAbilityActivationInfo ActivationInfo, UAnimSequenceBase* AnimAsset, FName SlotName, float BlendInTime, float BlendOutTime, float InPlayRate = 1.f, float StartTimeSeconds = 0.0f);
+
+	/** Plays a montage without updating replication/prediction structures. Used by simulated proxies when replication tells them to play a montage. */
+	virtual float PlayMontageSimulated(UAnimMontage* Montage, float InPlayRate, FName StartSectionName = NAME_None) override;
+
+	virtual UAnimMontage* PlaySlotAnimationAsDynamicMontageSimulated(UAnimSequenceBase* AnimAsset, FName SlotName, float BlendInTime, float BlendOutTime, float InPlayRate = 1.f) override;
+
+	/** Stops whatever montage is currently playing. Expectation is caller should only be stopping it if they are the current animating ability (or have good reason not to check) */
+	virtual void CurrentMontageStop(float OverrideBlendOutTime = -1.0f) override;
+
+	/** Stops current montage if it's the one given as the Montage param */
+	virtual void StopMontageIfCurrent(const UAnimMontage& Montage, float OverrideBlendOutTime = -1.0f) override;
+
+	/** Clear the animating ability that is passed in, if it's still currently animating */
+	virtual void ClearAnimatingAbility(UGameplayAbility* Ability) override;
+
+	/** Jumps current montage to given section. Expectation is caller should only be stopping it if they are the current animating ability (or have good reason not to check) */
+	virtual void CurrentMontageJumpToSection(FName SectionName) override;
+
+	/** Sets current montages next section name. Expectation is caller should only be stopping it if they are the current animating ability (or have good reason not to check) */
+	virtual void CurrentMontageSetNextSectionName(FName FromSectionName, FName ToSectionName) override;
+
+	/** Sets current montage's play rate */
+	virtual void CurrentMontageSetPlayRate(float InPlayRate) override;
+    virtual void OnRep_ReplicatedAnimMontage() override;
+	//--------------------
+};
+
+
+
+USTRUCT(BlueprintType)
+struct FGrantedAttriSetSet
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	TArray<TSubclassOf<UAttributeSet>> AttriSets;
+};
+
+
+USTRUCT(BlueprintType)
+struct FGrantedAbility
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	TSubclassOf<UGameplayAbility> AbilityClass;
+
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	int32 Level = 1;
+};
+
+USTRUCT(BlueprintType)
+struct FGrantedAbilitySet
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	TArray<FGrantedAbility> Abilities;
+};
+
+USTRUCT(BlueprintType)
+struct FGrantedSet
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	FGrantedAbilitySet AbilitySet;
+
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	FGrantedAttriSetSet AttriSetSet;
+};
+
+UCLASS(BlueprintType)
+class ULWAbilitySystemDataAsset : public UPrimaryDataAsset
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	FGrantedSet GrantedSet;
+};
+
+UCLASS(MinimalAPI, Blueprintable)
+class UGameAbilitySystemComponent : public UBaseAbilitySystemComponent
+{
+	GENERATED_BODY()
+
+public:
+	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
+	virtual void ClearActorInfo() override;
+
+private:
+	void InitGrantedByDataAsset(AActor* InOwnerActor, AActor* InAvatarActor);
+	void UninitAllGrantedAndInstancedObjects();
+
+private:
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<ULWAbilitySystemDataAsset> DA_AbilitySystem;
 };
