@@ -19,8 +19,17 @@ protected:
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void UnPossessed() override;
 
+	virtual void Tick(float DeltaSeconds) override;
+
 #pragma region Locomotion
 	
+private:
+	UFUNCTION(BlueprintCallable)
+	void DebugDrawBones(FLinearColor Color) const;
+	UFUNCTION(BlueprintCallable)
+	void DebugDrawBoneByName(FName BoneName, FLinearColor Color) const;
+	UFUNCTION(BlueprintCallable)
+	void DebugDrawBoneByIndex(int BoneIndex, FLinearColor Color) const;
 
 #pragma endregion Locomotion
 };

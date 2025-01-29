@@ -26,31 +26,31 @@ TCHAR* NSLeeway::GetTraceStack(int SkipDepth, int WalkDepth)
 #endif
 }
 
-inline NSLeeway::FLWIntACC::FLWIntACC(const TCHAR* Name, uint32 Mod, uint32 Flags)
-    :FAutoConsoleCommandWithWorldArgsAndOutputDevice(Name
-        , Text_LogLevelHelp
-        , FConsoleCommandWithWorldArgsAndOutputDeviceDelegate::CreateSP(this, FLWIntACC::Command)
-        , Flags)
-{
-}
-
-inline void NSLeeway::FLWIntACC::Command(const TArray<FString>& Args, UWorld* World, FOutputDevice& Output)
-{
-    if (Args.IsValidIndex(0))
-    {
-        if (!Args[0].IsEmpty())
-        {
-            LexFromString(ASCLogLevel, *Args[0]);
-            return;
-        }
-    }
-
-    if (Mod > 0)
-    {
-        Value = (Value + 1) % Mod;
-    }
-    else
-    {
-        Value = 0;
-    }
-}
+//inline NSLeeway::FLWIntACC::FLWIntACC(const TCHAR* Name, uint32 Mod, uint32 Flags)
+//    :FAutoConsoleCommandWithWorldArgsAndOutputDevice(Name
+//        , Text_LogLevelHelp
+//        , FConsoleCommandWithWorldArgsAndOutputDeviceDelegate::CreateSP(this, FLWIntACC::Command)
+//        , Flags)
+//{
+//}
+//
+//inline void NSLeeway::FLWIntACC::Command(const TArray<FString>& Args, UWorld* World, FOutputDevice& Output)
+//{
+//    if (Args.IsValidIndex(0))
+//    {
+//        if (!Args[0].IsEmpty())
+//        {
+//            LexFromString(ASCLogLevel, *Args[0]);
+//            return;
+//        }
+//    }
+//
+//    if (Mod > 0)
+//    {
+//        Value = (Value + 1) % Mod;
+//    }
+//    else
+//    {
+//        Value = 0;
+//    }
+//}
