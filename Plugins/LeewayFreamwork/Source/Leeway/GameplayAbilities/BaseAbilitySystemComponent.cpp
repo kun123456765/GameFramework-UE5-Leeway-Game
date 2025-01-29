@@ -181,6 +181,8 @@ void UGameAbilitySystemComponent::ClearActorInfo()
     Super::ClearActorInfo();
 }
 
+#include "Leeway/GameplayAbilities/AttributeSets/CombatAttributeSet.h"
+
 void UGameAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, AActor* InAvatarActor)
 {
     if (DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets.Num() > 0)
@@ -192,6 +194,13 @@ void UGameAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, A
             NewAttriSets.Add(NewAttriSet);
         }
         SetSpawnedAttributes(NewAttriSets);
+
+        if (auto* AttrSet = Cast<UCombatAttributeSet>(GetAttributeSet(UCombatAttributeSet::StaticClass())))
+        {
+            const float HP = 1000;
+            SetNumericAttributeBase(AttrSet->GetHealthAttribute(), HP);
+            SetNumericAttributeBase(AttrSet->GetMaxHealthAttribute(), HP);
+        }
     }
 
     for (const FGrantedAbility& GrantedAbility : DA_AbilitySystem->GrantedSet.AbilitySet.Abilities)
