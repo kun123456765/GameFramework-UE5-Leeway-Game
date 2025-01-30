@@ -14,6 +14,10 @@ class UCombatAttributeSet : public UBaseAttributeSet
 	GENERATED_BODY()
 
 public:
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
+	virtual bool PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data) override;
+
+public:
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Shield);

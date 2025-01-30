@@ -34,24 +34,6 @@ void UBaseAnimLayers::NativeInitializeAnimation()
         {
             AnimGraph = MainABP->GetAnimGraphContext();
         }
-
-        //if(auto* MoveComp = GetOwningActor()->FindComponentByClass<UBaseCharacterMovementComponent>())
-        //{ 
-        //	auto* DA_LocomotionAnim = MoveComp->DA_LocomotionAnim.Get();
-        //	if (!DA_LocomotionAnim)
-        //	{
-        //		DA_LocomotionAnim = MoveComp->DA_LocomotionAnim.LoadSynchronous();
-        //	}
-        //	if (DA_LocomotionAnim)
-        //	{
-        //		auto& AnimSet = MoveComp->DA_LocomotionAnim.Get()->AnimSet;
-        //		if (auto* AnimLayersSet = AnimSet.LayersSetMap.Find(MoveComp->GetAnimParams().CurrentAnimLayersTag))
-        //		{
-        //			AnimLayers = MakeShared<FAnimLayersSet>((*AnimLayersSet));
-        //		}
-        //	}
-        //}
-
     }
 }
 

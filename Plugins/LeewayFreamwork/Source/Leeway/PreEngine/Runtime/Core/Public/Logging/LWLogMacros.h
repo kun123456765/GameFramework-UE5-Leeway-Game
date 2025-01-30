@@ -8,7 +8,7 @@
 
 namespace NSLeeway
 {
-    TCHAR* GetTraceStack(int SkipDepth = 1, int WalkDepth = 15);
+    TCHAR* GetTraceStack(int SkipDepth = 1, int WalkDepth = 100);
 }
 
 #define UE_LOG_EX(CategoryName, Verbosity, Format, ...)\

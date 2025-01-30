@@ -11,25 +11,17 @@
 UCLASS(MinimalAPI, Blueprintable)
 class ABasePlayer : public ABaseCharacter
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 public:
-	ABasePlayer(const FObjectInitializer& ObjectInitializer);
+    ABasePlayer(const FObjectInitializer& ObjectInitializer);
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
-	virtual void PossessedBy(AController* NewController) override;
-	virtual void UnPossessed() override;
+    virtual void PossessedBy(AController* NewController) override;
+    virtual void UnPossessed() override;
 
-	virtual void Tick(float DeltaSeconds) override;
+    virtual void Tick(float DeltaSeconds) override;
 
-#pragma region Locomotion
-	
-private:
-	UFUNCTION(BlueprintCallable)
-	void DebugDrawBones(FLinearColor Color) const;
-	UFUNCTION(BlueprintCallable)
-	void DebugDrawBoneByName(FName BoneName, FLinearColor Color) const;
-	UFUNCTION(BlueprintCallable)
-	void DebugDrawBoneByIndex(int BoneIndex, FLinearColor Color) const;
-
-#pragma endregion Locomotion
+#pragma region Combat
+#pragma endregion Combat
 };

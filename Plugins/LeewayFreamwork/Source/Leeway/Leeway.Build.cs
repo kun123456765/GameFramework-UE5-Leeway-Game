@@ -32,6 +32,8 @@ public class Leeway : ModuleRules
             "GameplayAbilities",
             //add by kun 2025.01.22 for GAS
 			"GameplayTasks",
+            //add by kun 2025.01.30 for the PushMode of Replication;
+			"NetCore",
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]

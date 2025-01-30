@@ -6,43 +6,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Leeway/Animation/AnimDataAsset/LocomotionAnimDataAsset.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "BaseCharacterMovementComponent.generated.h"
 
-class ULocomotionAnimDataAsset;
-
-//ÓÉÂß¼­¿ØÖÆ;
-USTRUCT(BlueprintType)
-struct FAnimParams
-{
-    GENERATED_USTRUCT_BODY()
-
-    UPROPERTY(BlueprintReadWrite, EditAnyWhere)
-    FGameplayTag CurrentAnimLayersTag;
-};
 
 UCLASS(MinimalAPI, Blueprintable)
 class UBaseCharacterMovementComponent : public UCharacterMovementComponent
 {
     GENERATED_BODY()
 public:
+    UBaseCharacterMovementComponent(const FObjectInitializer& ObjectInitializer);
     virtual void BeginPlay() override;
-
-public:
-    const FAnimParams& GetAnimParams() const { return AnimParams; }
-
-public:
-    UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Leeway")
-    TSoftObjectPtr<ULocomotionAnimDataAsset> DA_LocomotionAnim;
-
-
-    UFUNCTION()
-    FAnimParams& ChangeAnimParams(UPARAM(ref) FAnimParams& InAnimParams)
-    {
-        AnimParams = InAnimParams;
-    }
-
-private:
-    UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Leeway", meta = (AllowPrivateAccess = "true"))
-    FAnimParams AnimParams;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

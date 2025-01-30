@@ -9,6 +9,7 @@
 #include "GameplayTagContainer.h"
 #include "LocomotionAnimDataAsset.generated.h"
 
+class UAnimSequence;
 
 USTRUCT(BlueprintType)
 struct FSoftObjectPtr2
@@ -129,6 +130,9 @@ struct FLWAnimSet
 
     UPROPERTY(BlueprintReadWrite, EditAnyWhere)
     TMap<FGameplayTag, FAnimLayersSet> LayersSetMap;
+
+    UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+    TMap<FGameplayTag, TSubclassOf<class UBaseAnimLayers>> AnimLayersClasses;
 };
 
 UCLASS(BlueprintType)
