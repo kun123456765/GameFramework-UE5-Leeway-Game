@@ -7,6 +7,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Character.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/GameInstance.h"
 #include "Leeway/GameplayAbilities/Abilities/TargetActors/GATargetActor_MeleeWeapon.h"
 
 
@@ -74,5 +75,13 @@ void UActorTargeting_AttachToActorBone::OverlapMulti(FActorTargetingOwnerContext
         }
     }
 
-    DrawDebugCapsule(OwnerContext.Owner.GetObject()->GetWorld(), WorldTransform.GetLocation(), CapsuleGeom.Length * 0.5f, CapsuleGeom.Radius, WorldTransform.Rotator().Quaternion(), bHasValidTarget ? FColor::Green : FColor::Red, false, 5);
+    bool Server = OwnerContext.Owner.GetObject()->GetWorld()->GetGameInstance()->IsDedicatedServerInstance();
+    if (Server)
+    {
+        DrawDebugCapsule(OwnerContext.Owner.GetObject()->GetWorld(), WorldTransform.GetLocation(), CapsuleGeom.Length * 0.5f, CapsuleGeom.Radius, WorldTransform.Rotator().Quaternion(), bHasValidTarget ? FColor::Green : FColor::Red, false, 5);
+    }
+    else
+    {
+        DrawDebugCapsule(OwnerContext.Owner.GetObject()->GetWorld(), WorldTransform.GetLocation(), CapsuleGeom.Length * 0.5f, CapsuleGeom.Radius, WorldTransform.Rotator().Quaternion(), bHasValidTarget ? FColor::Green : FColor::Yellow, false, 5);
+    }
 }

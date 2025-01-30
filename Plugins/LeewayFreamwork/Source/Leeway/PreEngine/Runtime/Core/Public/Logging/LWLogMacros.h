@@ -28,3 +28,7 @@ namespace NSLeeway
                 UE_LOG_EX(CategoryName, Verbosity, Format, ##__VA_ARGS__); \
             }\
         }
+
+#define UE_LOGD(Format, ...) UE_LOG_EX(LogTemp, Log, Format, ##__VA_ARGS__)
+#define UE_LOGD2(Format, ...) UE_LOG_EX_STACK(LogTemp, Log, Format, ##__VA_ARGS__)
+#define UE_CLOGD(LogLevel, Format, ...) UE_CLOG_EX(LogLevel, LogTemp, Log, Format, ##__VA_ARGS__)

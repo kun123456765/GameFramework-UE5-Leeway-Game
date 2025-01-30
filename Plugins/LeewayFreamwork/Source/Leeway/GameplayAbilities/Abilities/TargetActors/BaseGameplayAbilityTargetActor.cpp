@@ -6,6 +6,21 @@
 
 
 
+void ABaseGameplayAbilityTargetActor::BeginPlay()
+{
+    Super::BeginPlay();
+}
+
+void ABaseGameplayAbilityTargetActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    Super::EndPlay(EndPlayReason);
+}
+
+void ABaseGameplayAbilityTargetActor::Destroyed()
+{
+    Super::Destroyed();
+}
+
 void ABaseGameplayAbilityTargetActor::BPConfirmTargeting()
 {
     ConfirmTargeting();

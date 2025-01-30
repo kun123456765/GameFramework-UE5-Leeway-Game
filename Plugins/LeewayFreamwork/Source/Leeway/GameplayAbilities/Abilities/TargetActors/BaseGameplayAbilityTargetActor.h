@@ -30,6 +30,10 @@ class ABaseGameplayAbilityTargetActor : public AGameplayAbilityTargetActor, publ
 
     virtual bool IsNetRelevantFor(const AActor* RealViewer, const AActor* ViewTarget, const FVector& SrcLocation) const override;
 #endif
+public:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    virtual void Destroyed() override;
 
 public:
     UFUNCTION(BlueprintCallable)
