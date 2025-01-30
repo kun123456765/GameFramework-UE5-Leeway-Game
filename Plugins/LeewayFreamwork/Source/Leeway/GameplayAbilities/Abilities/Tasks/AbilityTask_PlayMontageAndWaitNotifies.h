@@ -40,11 +40,30 @@ class UAbilityTask_PlayMontageAndWaitNotifies : public UAbilityTask
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(BlueprintAssignable)
+	FMontageWaitSimpleDelegate	OnCompleted;
+
+	UPROPERTY(BlueprintAssignable)
+	FMontageWaitSimpleDelegate	OnBlendOut;
+
+	UPROPERTY(BlueprintAssignable)
+	FMontageWaitSimpleDelegate	OnInterrupted;
+
+	UPROPERTY(BlueprintAssignable)
+	FMontageWaitSimpleDelegate	OnCancelled;
+
+	UPROPERTY(BlueprintAssignable)
+	FPlayMontageAnimNotifyDelegate OnNotifyBegin;
+	
+	UPROPERTY(BlueprintAssignable)
+	FPlayMontageAnimNotifyDelegate OnNotifyEnd;
+
 	UFUNCTION(BlueprintCallable, Category = "Ability|Tasks", meta = (DisplayName = "PlayMontageAndWaitNotifies",
 		HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "TRUE"))
 	static UAbilityTask_PlayMontageAndWaitNotifies* CreatePlayMontageAndWaitProxy(UGameplayAbility* OwningAbility
-		, FPlayMontageDelegates& OutDelegates
-		, UPlayMontageCallbackProxy*& OutPlayMontageProxy
+		//, FPlayMontageDelegates& OutDelegates
+		//, UPlayMontageCallbackProxy*& OutPlayMontageProxy
 		, FName TaskInstanceName
 		, UAnimMontage* MontageToPlay
 		, float Rate = 1.f
@@ -65,9 +84,53 @@ private:
 		, float StartTimeSeconds
 		, bool bAllowInterruptAfterBlendOut);
 
+public:
+	UFUNCTION()
+	void OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION()
+	void OnGameplayAbilityCancelled();
+	UFUNCTION()
+	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	UFUNCTION()
+	void OnNotifyBeginReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
+	UFUNCTION()
+	void OnNotifyEndReceived(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
+
+	virtual void Activate() override;
+	virtual void ExternalCancel() override;
+	virtual FString GetDebugString() const override;
+
+protected:
+	virtual void OnDestroy(bool AbilityEnded) override;
+	bool StopPlayingMontage();
+
 private:
-	FOnMontagePlayDelegate OnNotifyBegin;
-	FOnMontagePlayDelegate OnNotifyEnd;
-	FPlayMontageDelegates Delegates;
-	TObjectPtr<UPlayMontageCallbackProxy> PlayMontageProxy;
+
+	//FPlayMontageDelegates Delegates;
+	//TObjectPtr<UPlayMontageCallbackProxy> PlayMontageProxy;
+
+	FOnMontageBlendingOutStarted BlendingOutDelegate;
+	FOnMontageEnded MontageEndedDelegate;
+	FDelegateHandle InterruptedHandle;
+
+	UPROPERTY()
+	TObjectPtr<UAnimMontage> MontageToPlay;
+
+	UPROPERTY()
+	float Rate;
+
+	UPROPERTY()
+	FName StartSection;
+
+	UPROPERTY()
+	float AnimRootMotionTranslationScale;
+
+	UPROPERTY()
+	float StartTimeSeconds;
+
+	UPROPERTY()
+	bool bStopWhenAbilityEnds;
+
+	UPROPERTY()
+	bool bAllowInterruptAfterBlendOut;
 };
