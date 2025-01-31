@@ -15,7 +15,7 @@ namespace NSLeeway
         UE_LOG(CategoryName, Verbosity, TEXT("[pie=%d, f=%d][%s:%d] ") Format, int32(GPlayInEditorID), GFrameNumber, ANSI_TO_TCHAR(__FUNCTION__), __LINE__, ##__VA_ARGS__)
 
 #define UE_LOG_EX_STACK(CategoryName, Verbosity, Format, ...)\
-        UE_LOG_EX(CategoryName, Verbosity, TEXT("[pie=%d, f=%d][%s:%d] ") Format TEXT("%s"), int32(GPlayInEditorID), GFrameNumber, ANSI_TO_TCHAR(__FUNCTION__), __LINE__, ##__VA_ARGS__, NSLeeway::GetTraceStack());
+        UE_LOG(CategoryName, Verbosity, TEXT("[pie=%d, f=%d][%s:%d] ") Format TEXT("%s"), int32(GPlayInEditorID), GFrameNumber, ANSI_TO_TCHAR(__FUNCTION__), __LINE__, ##__VA_ARGS__, NSLeeway::GetTraceStack());
 
 #define UE_CLOG_EX(LogLevel, CategoryName, Verbosity, Format, ...)\
         {\

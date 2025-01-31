@@ -19,27 +19,10 @@ void ABasePlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 void ABasePlayer::PossessedBy(AController* NewController)
 {
     Super::PossessedBy(NewController);
-    if (auto* PS = Cast<ABasePlayerState>(GetPlayerState()))
-    {
-        if (auto* GameASC = Cast<UGameAbilitySystemComponent>(PS->GetAbilitySystemComponent()))
-        {
-            GameASC->SetAvatarActor(this);
-            ASC = GameASC;
-        }
-    }
 }
 
 void ABasePlayer::UnPossessed()
 {
-    if (auto* PS = Cast<ABasePlayerState>(GetPlayerState()))
-    {
-        if (auto* ASComp = PS->GetAbilitySystemComponent())
-        {
-            ASComp->SetAvatarActor(this);
-            ASC.Reset();
-        }
-    }
-
     Super::UnPossessed();
 }
 

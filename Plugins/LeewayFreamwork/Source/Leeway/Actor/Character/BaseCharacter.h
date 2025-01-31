@@ -9,14 +9,13 @@
 #include "GameFramework/PlayerState.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "PhysicsEngine/PhysicsAsset.h"
-#include "Net/UnrealNetwork.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayTagContainer.h"
 #include "Leeway/Animation/AnimLayers/BaseAnimLayers.h"
 #include "Leeway/Animation/AnimDataAsset/LocomotionAnimDataAsset.h"
 #include "BaseCharacter.generated.h"
 
-class UGameAbilitySystemComponent;
+class UBaseAbilitySystemComponent;
 class UBaseCharacterMovementComponent;
 
 
@@ -38,6 +37,13 @@ public:
 	//----------------------------------------
 public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+protected:
+	virtual void OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState) override;
+	
+	virtual void OnPlayerStateChangedImpl(APlayerState* NewPlayerState, APlayerState* OldPlayerState);
+
+	TWeakObjectPtr<APlayerState> LastPlayerState;
 
 
 #pragma region Locomotion
@@ -101,7 +107,7 @@ protected:
 	//TObjectPtr<USkeletalMeshComponent> Feet;
 
 	UPROPERTY(Category = BaseCharacter, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TWeakObjectPtr<UGameAbilitySystemComponent> ASC;
+	TWeakObjectPtr<UBaseAbilitySystemComponent> ASC;
 
 	UPROPERTY(Category = BaseCharacter, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBaseCharacterMovementComponent> BaseCharacterMovement;

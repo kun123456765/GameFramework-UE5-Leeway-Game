@@ -42,10 +42,39 @@ void ABaseCharacter::BeginPlay()
     OnStanceChanged();
 }
 
-inline UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
+UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
 {
     return ASC.Get();
 }
+
+void ABaseCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState)
+{
+    if (LastPlayerState != OldPlayerState)
+    {
+        LastPlayerState = OldPlayerState;
+    }
+    OnPlayerStateChangedImpl(NewPlayerState, LastPlayerState.Get());
+}
+
+void ABaseCharacter::OnPlayerStateChangedImpl(APlayerState* NewPlayerState, APlayerState* OldPlayerState)
+{
+    auto* OldASC = OldPlayerState ? (OldPlayerState->Implements<UAbilitySystemInterface>() ? Cast<UBaseAbilitySystemComponent>(Cast<IAbilitySystemInterface>(OldPlayerState)->GetAbilitySystemComponent()) : nullptr) : nullptr;
+    auto* CurASC = NewPlayerState ? (NewPlayerState->Implements<UAbilitySystemInterface>() ? Cast<UBaseAbilitySystemComponent>(Cast<IAbilitySystemInterface>(NewPlayerState)->GetAbilitySystemComponent()) : nullptr) : nullptr;
+
+    if (OldASC != CurASC)
+    {
+        //todo kun 2025.01.31
+        // how to reset the previous ability system component?
+    }
+
+    if (CurASC)
+    {
+        CurASC->SetAvatarActor(this);
+    }
+
+    ASC = CurASC;
+}
+
 void ABaseCharacter::CreatePartialMeshComponent(TObjectPtr<USkeletalMeshComponent>& Comp, FName Name, FTransform Trans)
 {
     Comp = CreateDefaultSubobject<USkeletalMeshComponent>(Name);
@@ -69,7 +98,6 @@ void ABaseCharacter::CreatePartialMeshComponent(TObjectPtr<USkeletalMeshComponen
 
 void ABaseCharacter::ChangeStance(const FGameplayTag& InStance)
 {
-    UE_CLOG_EX(2, LogTemp, Log, TEXT("Try InStanceTag = %s"), *InStance.ToString());
     SetStance(InStance);
 }
 
@@ -113,11 +141,6 @@ void ABaseCharacter::OnStanceChanged(FGameplayTag PrevStanceTag)
             }
             if (auto* CurrentABPClass = DA_LocomotionAnim->AnimSet.AnimLayersClasses.Find(Stance))
             {
-                UE_CLOG_EX(2, LogTemp, Log, TEXT("Try InStanceTag = %s"), *Stance.ToString());
-                if (MeshComp->GetAnimInstance())
-                {
-                    UE_CLOG_EX(2, LogTemp, Log, TEXT("Do InStanceTag = %s"), *Stance.ToString());
-                }
                 MeshComp->LinkAnimClassLayers(*CurrentABPClass);
             }
         }

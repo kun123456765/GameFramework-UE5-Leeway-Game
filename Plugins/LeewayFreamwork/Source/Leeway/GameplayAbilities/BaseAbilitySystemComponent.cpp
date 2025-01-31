@@ -3,6 +3,7 @@
 //--------------------
 
 #include "BaseAbilitySystemComponent.h"
+#include "Leeway/GameplayAbilities/AttributeSets/CombatAttributeSet.h"
 
 namespace NSLeeway
 {
@@ -63,12 +64,27 @@ namespace NSLeeway
 void UBaseAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
 {
     UE_CLOG_EX(NSLeeway::ASCLogLevel, LogAbilitySystemComponent, Log, TEXT("InitAbilityActorInfo"));
+
+    bool bNeedRebuildGranted = false;
+    if (IsOwnerActorAuthoritative() && (InOwnerActor != GetOwnerActor() || InAvatarActor != GetAvatarActor()))
+    {
+        bNeedRebuildGranted = true;
+    }
+
     Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
+
+    if (bNeedRebuildGranted)
+    {
+        InitGrantedByDataAsset(InOwnerActor, InAvatarActor);
+    }
 }
 
 void UBaseAbilitySystemComponent::ClearActorInfo()
 {
     UE_CLOG_EX(NSLeeway::ASCLogLevel, LogAbilitySystemComponent, Log, TEXT("ClearActorInfo"));
+    
+    UninitAllGrantedAndInstancedObjects();
+    Super::ClearActorInfo();
 }
 
 void UBaseAbilitySystemComponent::NotifyAbilityCommit(UGameplayAbility* Ability)
@@ -155,62 +171,37 @@ void UBaseAbilitySystemComponent::OnRep_ReplicatedAnimMontage()
     Super::OnRep_ReplicatedAnimMontage();
 }
 
-//--------------------------------------------
-// Game
-//--------------------------------------------
-
-void UGameAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
+void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, AActor* InAvatarActor)
 {
-    bool bNeedRebuildGranted = false;
-    if (IsOwnerActorAuthoritative() && (InOwnerActor != GetOwnerActor() || InAvatarActor != GetAvatarActor()))
+    if (DA_AbilitySystem)
     {
-        bNeedRebuildGranted = true;
-    }
-
-    Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
-
-    if (bNeedRebuildGranted)
-    {
-        InitGrantedByDataAsset(InOwnerActor, InAvatarActor);
-    }
-}
-
-void UGameAbilitySystemComponent::ClearActorInfo()
-{
-    UninitAllGrantedAndInstancedObjects();
-    Super::ClearActorInfo();
-}
-
-#include "Leeway/GameplayAbilities/AttributeSets/CombatAttributeSet.h"
-
-void UGameAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, AActor* InAvatarActor)
-{
-    if (DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets.Num() > 0)
-    {
-        TArray<UAttributeSet*> NewAttriSets;
-        for (const TSubclassOf<UAttributeSet> AttriSetClass : DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets)
+        if (DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets.Num() > 0)
         {
-            UAttributeSet* NewAttriSet = NewObject<UAttributeSet>(GetOwner(), AttriSetClass);
-            NewAttriSets.Add(NewAttriSet);
+            TArray<UAttributeSet*> NewAttriSets;
+            for (const TSubclassOf<UAttributeSet> AttriSetClass : DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets)
+            {
+                UAttributeSet* NewAttriSet = NewObject<UAttributeSet>(GetOwner(), AttriSetClass);
+                NewAttriSets.Add(NewAttriSet);
+            }
+            SetSpawnedAttributes(NewAttriSets);
+
+            if (auto* AttrSet = Cast<UCombatAttributeSet>(GetAttributeSet(UCombatAttributeSet::StaticClass())))
+            {
+                const float HP = 1000;
+                SetNumericAttributeBase(AttrSet->GetHealthAttribute(), HP);
+                SetNumericAttributeBase(AttrSet->GetMaxHealthAttribute(), HP);
+            }
         }
-        SetSpawnedAttributes(NewAttriSets);
 
-        if (auto* AttrSet = Cast<UCombatAttributeSet>(GetAttributeSet(UCombatAttributeSet::StaticClass())))
+        for (const FGrantedAbility& GrantedAbility : DA_AbilitySystem->GrantedSet.AbilitySet.Abilities)
         {
-            const float HP = 1000;
-            SetNumericAttributeBase(AttrSet->GetHealthAttribute(), HP);
-            SetNumericAttributeBase(AttrSet->GetMaxHealthAttribute(), HP);
+            FGameplayAbilitySpec NewAbilitySpec = BuildAbilitySpecFromClass(GrantedAbility.AbilityClass, GrantedAbility.Level);
+            GiveAbility(NewAbilitySpec);
         }
     }
-
-    for (const FGrantedAbility& GrantedAbility : DA_AbilitySystem->GrantedSet.AbilitySet.Abilities)
-    {
-        FGameplayAbilitySpec NewAbilitySpec = BuildAbilitySpecFromClass(GrantedAbility.AbilityClass, GrantedAbility.Level);
-        GiveAbility(NewAbilitySpec);
-    }
 }
 
-void UGameAbilitySystemComponent::UninitAllGrantedAndInstancedObjects()
+void UBaseAbilitySystemComponent::UninitAllGrantedAndInstancedObjects()
 {
     CancelAbilities();
     ClearAllAbilities();

@@ -7,6 +7,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
 #include "Engine/DataAsset.h"
+#include "LWAbilitySystemDataAsset.h"
 #include "BaseAbilitySystemComponent.generated.h"
 
 UCLASS(MinimalAPI, Blueprintable, Abstract)
@@ -121,70 +122,6 @@ public:
 	virtual void CurrentMontageSetPlayRate(float InPlayRate) override;
     virtual void OnRep_ReplicatedAnimMontage() override;
 	//--------------------
-};
-
-
-
-USTRUCT(BlueprintType)
-struct FGrantedAttriSetSet
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
-	TArray<TSubclassOf<UAttributeSet>> AttriSets;
-};
-
-
-USTRUCT(BlueprintType)
-struct FGrantedAbility
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
-	TSubclassOf<UGameplayAbility> AbilityClass;
-
-	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
-	int32 Level = 1;
-};
-
-USTRUCT(BlueprintType)
-struct FGrantedAbilitySet
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
-	TArray<FGrantedAbility> Abilities;
-};
-
-USTRUCT(BlueprintType)
-struct FGrantedSet
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
-	FGrantedAbilitySet AbilitySet;
-
-	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
-	FGrantedAttriSetSet AttriSetSet;
-};
-
-UCLASS(BlueprintType)
-class ULWAbilitySystemDataAsset : public UPrimaryDataAsset
-{
-	GENERATED_BODY()
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
-	FGrantedSet GrantedSet;
-};
-
-UCLASS(MinimalAPI, Blueprintable)
-class UGameAbilitySystemComponent : public UBaseAbilitySystemComponent
-{
-	GENERATED_BODY()
-
-public:
-	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override;
-	virtual void ClearActorInfo() override;
 
 private:
 	void InitGrantedByDataAsset(AActor* InOwnerActor, AActor* InAvatarActor);
