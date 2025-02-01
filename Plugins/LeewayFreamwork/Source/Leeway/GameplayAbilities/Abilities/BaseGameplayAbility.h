@@ -6,6 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "AbilitySystemComponent.h"
 #include "BaseGameplayAbility.generated.h"
 
 /*

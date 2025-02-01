@@ -15,6 +15,12 @@ static FTargetingResult_Overlap& operator<<(FArchive& Ar, FTargetingResult_Overl
 {
     Ar << Value.Actor;
     Ar << Value.Component;
+    Ar << Value.OverlapCenter;
+    Ar << Value.LastFrameOverlapCenter;
+    Ar << Value.PhysicsAsset.ClosestWorldPosition;
+    Ar << Value.PhysicsAsset.Normal;
+    Ar << Value.PhysicsAsset.BoneName;
+    Ar << Value.PhysicsAsset.Distance;
 
     return Value;
 }
@@ -74,7 +80,7 @@ void AGATargetActor_MeleeWeapon::PerformTargetingQueue()
 
 void AGATargetActor_MeleeWeapon::ClearConfirmedActors()
 {
-    TargetingOwnerContext.ConfirmedActors.Empty();
+    TargetingOwnerContext.ClearRuntimeVars();
 }
 
 bool AGATargetActor_MeleeWeapon::MakeTargetData(FGameplayAbilityTargetDataHandle& DataHandle)

@@ -3,7 +3,7 @@
 //--------------------
 
 #include "BasePlayerState.h"
-#include "Leeway/GameplayAbilities/BaseAbilitySystemComponent.h"
+#include "Leeway/GameplayAbilities/GameAbilitySystemComponent.h"
 
 ABasePlayerState::ABasePlayerState(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)

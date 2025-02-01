@@ -12,6 +12,7 @@ TCHAR* NSLeeway::GetTraceStack(int SkipDepth, int WalkDepth)
     static TCHAR Buffer[65535];
     Buffer[0] = TCHAR('\0');
     TArray<FProgramCounterSymbolInfo> Stacks = FGenericPlatformStackWalk::GetStack(SkipDepth, WalkDepth);
+    FCString::Strcat(Buffer, TEXT("\n\nC++ Call Stack:"));
     for (int i = 0; i < Stacks.Num(); i++)
     {
         auto& Stack = Stacks[i];
@@ -22,6 +23,10 @@ TCHAR* NSLeeway::GetTraceStack(int SkipDepth, int WalkDepth)
         TCString<TCHAR>::Snprintf(LineBuffer, sizeof(LineBuffer), TEXT("\n%s (%s:%d)"), ANSI_TO_TCHAR(Stack.FunctionName), ANSI_TO_TCHAR(Stack.Filename), Stack.LineNumber);
         FCString::Strcat(Buffer, LineBuffer);
     }
+
+    FString BPCallStack = FFrame::GetScriptCallstack();
+    FCString::Strcat(Buffer, *BPCallStack);
+
     return Buffer;
 #endif
 }

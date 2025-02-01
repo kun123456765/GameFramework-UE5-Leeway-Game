@@ -5,7 +5,8 @@
 #pragma once
 
 #include "Templates/SharedPointer.h"
-#include "Engine/OverlapResult.h"
+#include "Components/SkeletalMeshComponent.h"
+//#include "Engine/OverlapResult.h"
 #include "PhysicsEngine/AggregateGeom.h"
 
 #include "ActorTargetingTypes.generated.h"
@@ -48,6 +49,28 @@ struct FLWAggregateGeom
 };
 
 USTRUCT(BlueprintType)
+struct FLWClosestPointOnPhysicsAsset
+{
+    GENERATED_USTRUCT_BODY()
+
+    /** The closest point in world space */
+    UPROPERTY(BlueprintReadWrite)
+    FVector ClosestWorldPosition = FVector::ZeroVector;
+
+    /** The normal associated with the surface of the closest body */
+    UPROPERTY(BlueprintReadWrite)
+    FVector Normal = FVector::ZeroVector;
+
+    /** The name of the bone associated with the closest body */
+    UPROPERTY(BlueprintReadWrite)
+    FName BoneName = NAME_None;
+
+    /** The distance of the closest point and the original world position. 0 Indicates world position is inside the closest body. */
+    UPROPERTY(BlueprintReadWrite)
+    float Distance = -1.f;
+};
+
+USTRUCT(BlueprintType)
 struct FTargetingResult_Overlap
 {
     GENERATED_USTRUCT_BODY()
@@ -58,7 +81,7 @@ public:
         return GetTypeHash(Struct.Actor);
         // note by kun 2025.01.28
         // 没考虑好是否要MultiComponents;
-        //return HashCombine(GetTypeHash(Struct.Actor), GetTypeHash(Struct.Component));
+        //return HashCombine(GetTypeHash(Struct.Actor), GetTypeHash(Struct.Component), GetTypeHash(Struct.OverlapCenter), GetTypeHash(Struct.LastFrameOverlapCenter));
     }
 
     bool operator==(const FTargetingResult_Overlap& Other) const
@@ -75,7 +98,14 @@ public:
     TWeakObjectPtr<AActor> Actor;
     UPROPERTY()
     TWeakObjectPtr<UPrimitiveComponent> Component;
+    UPROPERTY()
+    FVector OverlapCenter;
+    UPROPERTY()
+    FVector LastFrameOverlapCenter;
+    UPROPERTY()
+    FLWClosestPointOnPhysicsAsset PhysicsAsset;
 };
+
 template<>
 struct TStructOpsTypeTraits<FTargetingResult_Overlap> : public TStructOpsTypeTraitsBase2<FTargetingResult_Overlap>
 {
@@ -107,8 +137,19 @@ public:
     UPROPERTY(BlueprintReadWrite, Transient)
     TSet<FTargetingResult_Overlap> OverlapedActors;
 
+
+public:
+    void ClearRuntimeVars()
+    {
+        OverlapedActors.Empty();
+        LastFrameOverlapCenter = FVector::ZeroVector;
+    }
+
     UPROPERTY(Transient)
     TSet<TWeakObjectPtr<AActor>> ConfirmedActors; // TWeakObjectPtr is not supported by blueprint;
+
+    UPROPERTY(Transient)
+    FVector LastFrameOverlapCenter;
 };
 
 UENUM()

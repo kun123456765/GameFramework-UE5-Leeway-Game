@@ -42,6 +42,11 @@ void ABaseCharacter::BeginPlay()
     OnStanceChanged();
 }
 
+void ABaseCharacter::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+}
+
 UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
 {
     return ASC.Get();

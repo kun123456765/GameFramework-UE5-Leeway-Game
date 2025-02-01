@@ -10,6 +10,11 @@
 #include "Engine/GameInstance.h"
 #include "Leeway/GameplayAbilities/Abilities/TargetActors/GATargetActor_MeleeWeapon.h"
 
+int DrawDebugLevel = 0;
+static FAutoConsoleVariableRef CVar_LW_ActorTargeting_DrawDebugLevel(
+    TEXT("lw.debug.ActorTargeting.draw"), DrawDebugLevel,
+    TEXT("dong de dou dong!"),
+    ECVF_Default);
 
 void UActorTargeting_AttachToActorBone::PerformTargeting(FActorTargetingOwnerContext& OwnerContext)
 {
@@ -21,7 +26,7 @@ void UActorTargeting_AttachToActorBone::PerformTargetingStatic(FActorTargetingOw
     if (const auto* ContextBase = OwnerContext.GetSubContext(FActorTargetingContext_AttachToActorBone::StaticStruct()))
     {
         const auto& Context = static_cast<const FActorTargetingContext_AttachToActorBone&>(*ContextBase);
-        
+
         if (ACharacter* Character = Context.AttachToCharacter.Get())
         {
             FTransform WorldTransform = Context.AttachToCharacter->GetActorTransform();
@@ -51,7 +56,8 @@ void UActorTargeting_AttachToActorBone::OverlapMulti(FActorTargetingOwnerContext
     QueryParams.AddObjectTypesToQuery(ECC_Pawn);
     QueryParams.AddObjectTypesToQuery(ECC_PhysicsBody);
     TArray<FOverlapResult> Overlaps;
-    bool bHitted = OwnerContext.Owner.GetObject()->GetWorld()->OverlapMultiByObjectType(Overlaps, WorldTransform.GetLocation(), WorldTransform.Rotator().Quaternion(), QueryParams, FCollisionShape::MakeCapsule(CapsuleGeom.Radius, CapsuleGeom.Length * 0.5f));
+    FVector OverlapCenter = WorldTransform.GetLocation();
+    bool bHitted = OwnerContext.Owner.GetObject()->GetWorld()->OverlapMultiByObjectType(Overlaps, OverlapCenter, WorldTransform.Rotator().Quaternion(), QueryParams, FCollisionShape::MakeCapsule(CapsuleGeom.Radius, CapsuleGeom.Length * 0.5f));
 
     bool bHasValidTarget = false;
     const TArray<TWeakObjectPtr<AActor>>& IgnoreActors = OwnerContext.Owner.GetInterface()->GetSceneQueryIgnoreActors();
@@ -65,6 +71,30 @@ void UActorTargeting_AttachToActorBone::OverlapMulti(FActorTargetingOwnerContext
                 FTargetingResult_Overlap NetOverlap;
                 NetOverlap.Actor = Actor;
                 NetOverlap.Component = Comp;
+                NetOverlap.OverlapCenter = OverlapCenter;
+                NetOverlap.LastFrameOverlapCenter = OwnerContext.LastFrameOverlapCenter;
+
+                if (auto* MeshComp = Cast<ACharacter>(NetOverlap.Actor)->GetMesh())
+                {
+                    FClosestPointOnPhysicsAsset PhysicsAsset;
+                    if (MeshComp->GetClosestPointOnPhysicsAsset(OverlapCenter, PhysicsAsset, true))
+                    {
+                        NetOverlap.PhysicsAsset.ClosestWorldPosition = PhysicsAsset.ClosestWorldPosition;
+                        NetOverlap.PhysicsAsset.Normal = PhysicsAsset.Normal;
+                        NetOverlap.PhysicsAsset.BoneName = PhysicsAsset.BoneName;
+                        NetOverlap.PhysicsAsset.Distance = PhysicsAsset.Distance;
+
+                        DrawDebugPoint(OwnerContext.Owner.GetObject()->GetWorld(), PhysicsAsset.ClosestWorldPosition, 5, FColor::Red, false, 5);
+                    }
+                    else if (MeshComp->GetClosestPointOnPhysicsAsset(OwnerContext.LastFrameOverlapCenter, PhysicsAsset, true))
+                    {
+                        NetOverlap.PhysicsAsset.ClosestWorldPosition = PhysicsAsset.ClosestWorldPosition;
+                        NetOverlap.PhysicsAsset.Normal = PhysicsAsset.Normal;
+                        NetOverlap.PhysicsAsset.BoneName = PhysicsAsset.BoneName;
+                        NetOverlap.PhysicsAsset.Distance = PhysicsAsset.Distance;
+                    }
+                }
+
                 OwnerContext.OverlapedActors.Add(NetOverlap);
 
                 if (!OwnerContext.ConfirmedActors.Contains(Actor))
@@ -75,13 +105,19 @@ void UActorTargeting_AttachToActorBone::OverlapMulti(FActorTargetingOwnerContext
         }
     }
 
-    bool Server = OwnerContext.Owner.GetObject()->GetWorld()->GetGameInstance()->IsDedicatedServerInstance();
-    if (Server)
+    if (!bHasValidTarget)
     {
-        DrawDebugCapsule(OwnerContext.Owner.GetObject()->GetWorld(), WorldTransform.GetLocation(), CapsuleGeom.Length * 0.5f, CapsuleGeom.Radius, WorldTransform.Rotator().Quaternion(), bHasValidTarget ? FColor::Green : FColor::Red, false, 5);
+        OwnerContext.LastFrameOverlapCenter = OverlapCenter;
     }
-    else
+
+    if (DrawDebugLevel > 0)
     {
-        DrawDebugCapsule(OwnerContext.Owner.GetObject()->GetWorld(), WorldTransform.GetLocation(), CapsuleGeom.Length * 0.5f, CapsuleGeom.Radius, WorldTransform.Rotator().Quaternion(), bHasValidTarget ? FColor::Green : FColor::Yellow, false, 5);
+        bool Server = OwnerContext.Owner.GetObject()->GetWorld()->GetGameInstance()->IsDedicatedServerInstance();
+        FColor Color = bHasValidTarget ? FColor::Green : Server ? FColor::Red : FColor::Yellow;
+        if ((bHasValidTarget && DrawDebugLevel > 0)
+            || (!bHasValidTarget && DrawDebugLevel > 1))
+        {
+            DrawDebugCapsule(OwnerContext.Owner.GetObject()->GetWorld(), WorldTransform.GetLocation(), CapsuleGeom.Length * 0.5f, CapsuleGeom.Radius, WorldTransform.Rotator().Quaternion(), Color, false, 3);
+        }
     }
 }

@@ -33,4 +33,7 @@ public:
 protected:
 	//void PerformTargeting();
 
+	UFUNCTION(BlueprintCallable)
+	void OnTakeDamage(const FGameplayTag& TriggerTag, const FGameplayAbilityTargetDataHandle& TargetData);
+
 };
