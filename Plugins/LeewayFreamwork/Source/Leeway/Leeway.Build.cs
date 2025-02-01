@@ -34,6 +34,8 @@ public class Leeway : ModuleRules
 			"GameplayTasks",
             //add by kun 2025.01.30 for the PushMode of Replication;
 			"NetCore",
+            //add by kun 2025.01.30 for the HPBar;
+			"UMG",
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]
