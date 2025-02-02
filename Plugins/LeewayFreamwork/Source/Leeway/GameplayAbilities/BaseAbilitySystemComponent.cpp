@@ -68,7 +68,15 @@ void UBaseAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AAc
     bool bNeedRebuildGranted = false;
     if (IsOwnerActorAuthoritative() && (InOwnerActor != GetOwnerActor() || InAvatarActor != GetAvatarActor()))
     {
-        bNeedRebuildGranted = true;
+        if (InAvatarActor->IsA<APlayerState>())
+        {
+            // Player的放在 Character::PlayerStateChanged 流程里做;
+            bNeedRebuildGranted = false;
+        }
+        else
+        {
+            bNeedRebuildGranted = true;
+        }
     }
 
     Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
@@ -175,28 +183,47 @@ void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, A
 {
     if (DA_AbilitySystem)
     {
-        if (DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets.Num() > 0)
-        {
-            TArray<UAttributeSet*> NewAttriSets;
-            for (const TSubclassOf<UAttributeSet> AttriSetClass : DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets)
-            {
-                UAttributeSet* NewAttriSet = NewObject<UAttributeSet>(GetOwner(), AttriSetClass);
-                NewAttriSets.Add(NewAttriSet);
-            }
-            SetSpawnedAttributes(NewAttriSets);
+        bool bIsAuthority = GetOwner()->GetLocalRole() == ENetRole::ROLE_Authority;
+        bool bIsAutonomous = GetOwner()->GetLocalRole() == ENetRole::ROLE_AutonomousProxy;
+        bool bIsSimulated = GetOwner()->GetLocalRole() == ENetRole::ROLE_SimulatedProxy;
 
-            if (auto* AttrSet = Cast<UCombatAttributeSet>(GetAttributeSet(UCombatAttributeSet::StaticClass())))
+        if (bIsAuthority)
+        {
+            if (DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets.Num() > 0)
             {
-                const float HP = 1000;
-                SetNumericAttributeBase(AttrSet->GetHealthAttribute(), HP);
-                SetNumericAttributeBase(AttrSet->GetMaxHealthAttribute(), HP);
+                TArray<UAttributeSet*> NewAttriSets;
+                for (const TSubclassOf<UAttributeSet> AttriSetClass : DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets)
+                {
+                    UAttributeSet* NewAttriSet = NewObject<UAttributeSet>(GetOwner(), AttriSetClass);
+                    NewAttriSets.Add(NewAttriSet);
+                }
+                SetSpawnedAttributes(NewAttriSets);
+
+                if (auto* AttrSet = Cast<UCombatAttributeSet>(GetAttributeSet(UCombatAttributeSet::StaticClass())))
+                {
+                    const float MaxHP = 1000;
+                    const_cast<UCombatAttributeSet*>(AttrSet)->Initialize(MaxHP);
+                    //SetNumericAttributeBase(AttrSet->GetHealthAttribute(), HP);
+                    //SetNumericAttributeBase(AttrSet->GetMaxHealthAttribute(), HP);
+                }
             }
         }
 
         for (const FGrantedAbility& GrantedAbility : DA_AbilitySystem->GrantedSet.AbilitySet.Abilities)
         {
-            FGameplayAbilitySpec NewAbilitySpec = BuildAbilitySpecFromClass(GrantedAbility.AbilityClass, GrantedAbility.Level);
-            GiveAbility(NewAbilitySpec);
+            auto* CDO_Ability = GrantedAbility.AbilityClass->GetDefaultObject<UGameplayAbility>();
+            auto NetExecutionPolicy = CDO_Ability->GetNetExecutionPolicy();
+            bool bIsLocalOnlyGA = EGameplayAbilityNetExecutionPolicy::Type::LocalOnly == NetExecutionPolicy;
+            bool bCanGive = (bIsAuthority && !bIsLocalOnlyGA) // 服务器添加;
+                || ((bIsAutonomous || bIsSimulated) && bIsLocalOnlyGA); // 纯客户端，当前端添加;
+            {
+                if (bCanGive)
+                {
+                    FGameplayAbilitySpec NewAbilitySpec = BuildAbilitySpecFromClass(GrantedAbility.AbilityClass, GrantedAbility.Level);
+                    auto GAHandle = GiveAbility(NewAbilitySpec);
+                    GrantedHandleSet.Abilities.Add(GAHandle);
+                }
+            }
         }
     }
 }

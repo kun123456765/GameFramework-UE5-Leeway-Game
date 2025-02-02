@@ -130,4 +130,6 @@ private:
 private:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ULWAbilitySystemDataAsset> DA_AbilitySystem;
+
+	FGrantedHandleSet GrantedHandleSet;
 };

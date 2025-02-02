@@ -107,10 +107,10 @@ protected:
 	//UPROPERTY(Category = BaseCharacter, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	//TObjectPtr<USkeletalMeshComponent> Feet;
 
-	UPROPERTY(Category = BaseCharacter, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = BaseCharacter, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TWeakObjectPtr<UBaseAbilitySystemComponent> ASC;
 
-	UPROPERTY(Category = BaseCharacter, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(Category = BaseCharacter, EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBaseCharacterMovementComponent> BaseCharacterMovement;
 
 #pragma region Combat

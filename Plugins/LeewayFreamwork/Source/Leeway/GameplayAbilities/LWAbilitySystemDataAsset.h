@@ -61,3 +61,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
 	FGrantedSet GrantedSet;
 };
+
+USTRUCT(BlueprintType)
+struct FGrantedHandleSet
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	TArray<FGameplayAbilitySpecHandle> Abilities;
+
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	TArray<FActiveGameplayEffectHandle> Effects;
+};

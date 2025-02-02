@@ -8,6 +8,43 @@
 #include "BaseAttributeSet.h"
 #include "CombatAttributeSet.generated.h"
 
+USTRUCT(BlueprintType)
+struct FDamageInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	float HealthDamage = 0;
+	UPROPERTY(BlueprintReadWrite)
+	float ShieldDamage = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FHealingInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	float Healing = 0;
+	UPROPERTY(BlueprintReadWrite)
+	float Replenish = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FOutOfHealthInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+	float bOutOfHealth = false;
+	UPROPERTY(BlueprintReadWrite)
+	float bShieldBroken = false;
+};
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamgeDelegate, FDamageInfo const&, DamageInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealingDelegate, FHealingInfo const&, HealingInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOutOfHealthDelegate, FOutOfHealthInfo const&, OutOfHealthInfo);
+
 UCLASS(MinimalAPI, Blueprintable)
 class UCombatAttributeSet : public UBaseAttributeSet
 {
@@ -20,12 +57,16 @@ public:
 	virtual bool PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data) override;
 
 public:
+	void Initialize(float MaxHealth);
+
+public:
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Health);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MaxHealth);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Shield);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, MaxShield);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Damage);
 	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Healing);
-	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, ReplenishShield);
+	ATTRIBUTE_ACCESSORS(UCombatAttributeSet, Replenish);
 
 private:
 	UFUNCTION()
@@ -35,11 +76,13 @@ private:
 	UFUNCTION()
 	void OnRep_Shield(const FGameplayAttributeData& PrevValue);
 	UFUNCTION()
+	void OnRep_MaxShield(const FGameplayAttributeData& PrevValue);
+	UFUNCTION()
 	void OnRep_Damage(const FGameplayAttributeData& PrevValue);
 	UFUNCTION()
 	void OnRep_Healing(const FGameplayAttributeData& PrevValue);
 	UFUNCTION()
-	void OnRep_ReplenishShield(const FGameplayAttributeData& PrevValue);
+	void OnRep_Replenish(const FGameplayAttributeData& PrevValue);
 
 private:
     UPROPERTY(ReplicatedUsing = OnRep_Health, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -51,12 +94,32 @@ private:
 	UPROPERTY(ReplicatedUsing = OnRep_Shield, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FGameplayAttributeData Shield;
 
+	UPROPERTY(ReplicatedUsing = OnRep_MaxShield, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData MaxShield;
+
 	UPROPERTY(ReplicatedUsing = OnRep_Damage, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FGameplayAttributeData Damage;
 
 	UPROPERTY(ReplicatedUsing = OnRep_Healing, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	FGameplayAttributeData Healing;
 	
-	UPROPERTY(ReplicatedUsing = OnRep_ReplenishShield, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	FGameplayAttributeData ReplenishShield;
+	UPROPERTY(ReplicatedUsing = OnRep_Replenish, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayAttributeData Replenish;
+
+public:
+	FOnDamgeDelegate OnDamge;
+	FOnHealingDelegate OnHealing;
+	FOnOutOfHealthDelegate OnOutOfHealth;
+
+	UPROPERTY(BlueprintReadWrite, Transient)
+	float LastDamageWorldTime;
+
+private:
+	struct {
+		float MaxHealth = 0;
+	} BeforeChangeValues;
+
+private:
+	bool bOutOfHealth = false;
+	bool bShieldBroken = false;
 };

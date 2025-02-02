@@ -7,6 +7,7 @@
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
 #include "AbilitySystemComponent.h"
+#include "Leeway/GameplayAbilities/Effects/BaseGameplayEffect.h"
 #include "BaseGameplayAbility.generated.h"
 
 /*

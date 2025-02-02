@@ -83,8 +83,6 @@ void UActorTargeting_AttachToActorBone::OverlapMulti(FActorTargetingOwnerContext
                         NetOverlap.PhysicsAsset.Normal = PhysicsAsset.Normal;
                         NetOverlap.PhysicsAsset.BoneName = PhysicsAsset.BoneName;
                         NetOverlap.PhysicsAsset.Distance = PhysicsAsset.Distance;
-
-                        DrawDebugPoint(OwnerContext.Owner.GetObject()->GetWorld(), PhysicsAsset.ClosestWorldPosition, 5, FColor::Red, false, 5);
                     }
                     else if (MeshComp->GetClosestPointOnPhysicsAsset(OwnerContext.LastFrameOverlapCenter, PhysicsAsset, true))
                     {
@@ -92,6 +90,10 @@ void UActorTargeting_AttachToActorBone::OverlapMulti(FActorTargetingOwnerContext
                         NetOverlap.PhysicsAsset.Normal = PhysicsAsset.Normal;
                         NetOverlap.PhysicsAsset.BoneName = PhysicsAsset.BoneName;
                         NetOverlap.PhysicsAsset.Distance = PhysicsAsset.Distance;
+                    }
+                    if (DrawDebugLevel > 0)
+                    {
+                        DrawDebugPoint(OwnerContext.Owner.GetObject()->GetWorld(), NetOverlap.PhysicsAsset.ClosestWorldPosition, 5, FColor::Red, false, 5);
                     }
                 }
 
