@@ -13,7 +13,7 @@
 
 FName ULWAnimBlueprintLibrary::ChooseFittestMontageSectionForHitReaction(const UAnimMontage* MontageToPlay, const FAnimMetaData_HitReaction& InMetaData)
 {
-    UKismetSystemLibrary::PrintString(nullptr, *FString::Printf(TEXT("Calc Section: %d, %d, %d, %d, Tensor=(%s)"), InMetaData.DirF, InMetaData.DirH, InMetaData.DirV, InMetaData.Intensity, *InMetaData.DirTensor.ToString()));
+    //UE_LOGD(TEXT("Calc Section: %d, %d, %d, %d, Tensor=(%s)"), InMetaData.DirF, InMetaData.DirH, InMetaData.DirV, InMetaData.Intensity, *InMetaData.DirTensor.ToString());
     if (MontageToPlay)
     {
         int BestSectionIndex = 0;
@@ -49,14 +49,14 @@ FName ULWAnimBlueprintLibrary::ChooseFittestMontageSectionForHitReaction(const U
                         BestSectionIndex = i;
                         BestMetaData = LWMetaData;
                     }
-                    UKismetSystemLibrary::PrintString(nullptr, *FString::Printf(TEXT("Montage: %d, %d, %d, %d, WeightDis = %d, TenderDis = %f, (%s)"), LWMetaData->Data.DirF, LWMetaData->Data.DirH, LWMetaData->Data.DirV, LWMetaData->Data.Intensity, Distance, TensorDistance, *MontageToPlay->GetSectionName(i).ToString()));
+                    //UE_LOGD(TEXT("Montage: %d, %d, %d, %d, WeightDis = %d, TenderDis = %f, (%s)"), LWMetaData->Data.DirF, LWMetaData->Data.DirH, LWMetaData->Data.DirV, LWMetaData->Data.Intensity, Distance, TensorDistance, *MontageToPlay->GetSectionName(i).ToString());
                 }
             }
         }
 
         if (BestMetaData)
         {
-            UKismetSystemLibrary::PrintString(nullptr, *FString::Printf(TEXT("Best Section: %d, %d, %d, %d, (%s)"), BestMetaData->Data.DirF, BestMetaData->Data.DirH, BestMetaData->Data.DirV, BestMetaData->Data.Intensity, *MontageToPlay->GetSectionName(BestSectionIndex).ToString()));
+            //UE_LOGD(TEXT("Best Section: %d, %d, %d, %d, (%s)"), BestMetaData->Data.DirF, BestMetaData->Data.DirH, BestMetaData->Data.DirV, BestMetaData->Data.Intensity, *MontageToPlay->GetSectionName(BestSectionIndex).ToString());
         }
 
         return MontageToPlay->GetSectionName(BestSectionIndex);

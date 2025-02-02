@@ -191,6 +191,7 @@ void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, A
         {
             if (DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets.Num() > 0)
             {
+                // 添加属性集;
                 TArray<UAttributeSet*> NewAttriSets;
                 for (const TSubclassOf<UAttributeSet> AttriSetClass : DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets)
                 {
@@ -199,6 +200,9 @@ void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, A
                 }
                 SetSpawnedAttributes(NewAttriSets);
 
+                // 初始化属性集;
+                //todo kun 2025.02.03
+                // 这个要在BaseCharacter类里对接NPCTemplates/PlayerUpgradeTempaltes;
                 if (auto* AttrSet = Cast<UCombatAttributeSet>(GetAttributeSet(UCombatAttributeSet::StaticClass())))
                 {
                     const float MaxHP = 1000;
@@ -209,19 +213,28 @@ void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, A
             }
         }
 
+        // 添加能力值;
         for (const FGrantedAbility& GrantedAbility : DA_AbilitySystem->GrantedSet.AbilitySet.Abilities)
         {
             auto* CDO_Ability = GrantedAbility.AbilityClass->GetDefaultObject<UGameplayAbility>();
+
+            // 在对应端添加;
             auto NetExecutionPolicy = CDO_Ability->GetNetExecutionPolicy();
             bool bIsLocalOnlyGA = EGameplayAbilityNetExecutionPolicy::Type::LocalOnly == NetExecutionPolicy;
             bool bCanGive = (bIsAuthority && !bIsLocalOnlyGA) // 服务器添加;
                 || ((bIsAutonomous || bIsSimulated) && bIsLocalOnlyGA); // 纯客户端，当前端添加;
+
+            if (bCanGive)
             {
-                if (bCanGive)
+                // 添加能力;
+                FGameplayAbilitySpec NewAbilitySpec = BuildAbilitySpecFromClass(GrantedAbility.AbilityClass, GrantedAbility.Level);
+                auto GAHandle = GiveAbility(NewAbilitySpec);
+                GrantedHandleSet.Abilities.Add(GAHandle);
+
+                // 自动激活;
+                if (GrantedAbility.bActivateOnGiveAbility)
                 {
-                    FGameplayAbilitySpec NewAbilitySpec = BuildAbilitySpecFromClass(GrantedAbility.AbilityClass, GrantedAbility.Level);
-                    auto GAHandle = GiveAbility(NewAbilitySpec);
-                    GrantedHandleSet.Abilities.Add(GAHandle);
+                    TryActivateAbility(GAHandle);
                 }
             }
         }

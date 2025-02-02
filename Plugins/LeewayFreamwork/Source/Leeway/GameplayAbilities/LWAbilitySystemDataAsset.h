@@ -30,6 +30,9 @@ struct FGrantedAbility
 
 	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
 	int32 Level = 1;
+
+	UPROPERTY(BlueprintReadWrite, EditAnyWhere)
+	bool bActivateOnGiveAbility = false;
 };
 
 USTRUCT(BlueprintType)

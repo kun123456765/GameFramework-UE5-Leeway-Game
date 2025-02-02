@@ -17,6 +17,10 @@ public:
     virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 
 protected:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void FetchSetByCallerMagnitude(FGameplayTag& GameplayTag, float& Magnitude) const;
+
+protected:
 	UFUNCTION()
 	void OnTimer_CheckInhibition();
 

@@ -15,7 +15,12 @@ void UGameplayAbility_HealthRegeneration::ActivateAbility(const FGameplayAbility
     if (PeriodicHealingEffect.Get())
     {
         GEHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, PeriodicHealingEffect.GetDefaultObject(), 1, 1);
-        GEHandle = GetAbilitySystemComponentFromActorInfo()->SetActiveGameplayEffectInhibit(MoveTemp(GEHandle), true, false);
+        auto* ASC = GetAbilitySystemComponentFromActorInfo();
+        GEHandle = ASC->SetActiveGameplayEffectInhibit(MoveTemp(GEHandle), true, false);
+        FGameplayTag DataTag;
+        float Magnitude = 0;
+        FetchSetByCallerMagnitude(DataTag, Magnitude);
+        ASC->UpdateActiveGameplayEffectSetByCallerMagnitude(GEHandle, DataTag, Magnitude);        
         GetWorld()->GetTimerManager().SetTimer(CheckInhibitionTimer, FTimerDelegate::CreateUObject(this, &ThisClass::OnTimer_CheckInhibition), 1, true);
     }
 
@@ -27,6 +32,11 @@ void UGameplayAbility_HealthRegeneration::EndAbility(const FGameplayAbilitySpecH
     GetWorld()->GetTimerManager().ClearTimer(CheckInhibitionTimer);
 
     Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+}
+
+void UGameplayAbility_HealthRegeneration::FetchSetByCallerMagnitude_Implementation(FGameplayTag& GameplayTag, float& Magnitude) const
+{
+    Magnitude = 1.f;
 }
 
 void UGameplayAbility_HealthRegeneration::OnTimer_CheckInhibition()
