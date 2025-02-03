@@ -3,18 +3,16 @@
 //--------------------
 
 #include "ActorTargeting_AttachToActorBone.h"
-#include "DrawDebugHelpers.h"
-#include "Engine/World.h"
-#include "GameFramework/Character.h"
-#include "Components/SkeletalMeshComponent.h"
-#include "Engine/GameInstance.h"
 #include "Leeway/GameplayAbilities/Abilities/TargetActors/GATargetActor_MeleeWeapon.h"
 
-int DrawDebugLevel = 0;
-static FAutoConsoleVariableRef CVar_LW_ActorTargeting_DrawDebugLevel(
-    TEXT("lw.debug.ActorTargeting.draw"), DrawDebugLevel,
-    TEXT("dong de dou dong!"),
-    ECVF_Default);
+namespace Leeway
+{
+    int DrawDebugLevel_ActorTargeting = 0;
+    static FAutoConsoleVariableRef CVar_LW_ActorTargeting_DrawDebugLevel(
+        TEXT("lw.debug.draw.actortargeting"), DrawDebugLevel_ActorTargeting,
+        TEXT("dong de dou dong!"),
+        ECVF_Default);
+}
 
 void UActorTargeting_AttachToActorBone::PerformTargeting(FActorTargetingOwnerContext& OwnerContext)
 {
@@ -74,26 +72,29 @@ void UActorTargeting_AttachToActorBone::OverlapMulti(FActorTargetingOwnerContext
                 NetOverlap.OverlapCenter = OverlapCenter;
                 NetOverlap.LastFrameOverlapCenter = OwnerContext.LastFrameOverlapCenter;
 
-                if (auto* MeshComp = Cast<ACharacter>(NetOverlap.Actor)->GetMesh())
+                if (auto* Character = Cast<ACharacter>(NetOverlap.Actor))
                 {
-                    FClosestPointOnPhysicsAsset PhysicsAsset;
-                    if (MeshComp->GetClosestPointOnPhysicsAsset(OverlapCenter, PhysicsAsset, true))
+                    if (auto* MeshComp = Cast<ACharacter>(NetOverlap.Actor)->GetMesh())
                     {
-                        NetOverlap.PhysicsAsset.ClosestWorldPosition = PhysicsAsset.ClosestWorldPosition;
-                        NetOverlap.PhysicsAsset.Normal = PhysicsAsset.Normal;
-                        NetOverlap.PhysicsAsset.BoneName = PhysicsAsset.BoneName;
-                        NetOverlap.PhysicsAsset.Distance = PhysicsAsset.Distance;
-                    }
-                    else if (MeshComp->GetClosestPointOnPhysicsAsset(OwnerContext.LastFrameOverlapCenter, PhysicsAsset, true))
-                    {
-                        NetOverlap.PhysicsAsset.ClosestWorldPosition = PhysicsAsset.ClosestWorldPosition;
-                        NetOverlap.PhysicsAsset.Normal = PhysicsAsset.Normal;
-                        NetOverlap.PhysicsAsset.BoneName = PhysicsAsset.BoneName;
-                        NetOverlap.PhysicsAsset.Distance = PhysicsAsset.Distance;
-                    }
-                    if (DrawDebugLevel > 0)
-                    {
-                        DrawDebugPoint(OwnerContext.Owner.GetObject()->GetWorld(), NetOverlap.PhysicsAsset.ClosestWorldPosition, 5, FColor::Red, false, 5);
+                        FClosestPointOnPhysicsAsset PhysicsAsset;
+                        if (MeshComp->GetClosestPointOnPhysicsAsset(OverlapCenter, PhysicsAsset, true))
+                        {
+                            NetOverlap.PhysicsAsset.ClosestWorldPosition = PhysicsAsset.ClosestWorldPosition;
+                            NetOverlap.PhysicsAsset.Normal = PhysicsAsset.Normal;
+                            NetOverlap.PhysicsAsset.BoneName = PhysicsAsset.BoneName;
+                            NetOverlap.PhysicsAsset.Distance = PhysicsAsset.Distance;
+                        }
+                        else if (MeshComp->GetClosestPointOnPhysicsAsset(OwnerContext.LastFrameOverlapCenter, PhysicsAsset, true))
+                        {
+                            NetOverlap.PhysicsAsset.ClosestWorldPosition = PhysicsAsset.ClosestWorldPosition;
+                            NetOverlap.PhysicsAsset.Normal = PhysicsAsset.Normal;
+                            NetOverlap.PhysicsAsset.BoneName = PhysicsAsset.BoneName;
+                            NetOverlap.PhysicsAsset.Distance = PhysicsAsset.Distance;
+                        }
+                        if (Leeway::DrawDebugLevel_ActorTargeting > 0)
+                        {
+                            DrawDebugPoint(OwnerContext.Owner.GetObject()->GetWorld(), NetOverlap.PhysicsAsset.ClosestWorldPosition, 5, FColor::Red, false, 5);
+                        }
                     }
                 }
 
@@ -112,12 +113,12 @@ void UActorTargeting_AttachToActorBone::OverlapMulti(FActorTargetingOwnerContext
         OwnerContext.LastFrameOverlapCenter = OverlapCenter;
     }
 
-    if (DrawDebugLevel > 0)
+    if (Leeway::DrawDebugLevel_ActorTargeting > 0)
     {
         bool Server = OwnerContext.Owner.GetObject()->GetWorld()->GetGameInstance()->IsDedicatedServerInstance();
         FColor Color = bHasValidTarget ? FColor::Green : Server ? FColor::Red : FColor::Yellow;
-        if ((bHasValidTarget && DrawDebugLevel > 0)
-            || (!bHasValidTarget && DrawDebugLevel > 1))
+        if ((bHasValidTarget && Leeway::DrawDebugLevel_ActorTargeting > 0)
+            || (!bHasValidTarget && Leeway::DrawDebugLevel_ActorTargeting > 1))
         {
             DrawDebugCapsule(OwnerContext.Owner.GetObject()->GetWorld(), WorldTransform.GetLocation(), CapsuleGeom.Length * 0.5f, CapsuleGeom.Radius, WorldTransform.Rotator().Quaternion(), Color, false, 3);
         }
