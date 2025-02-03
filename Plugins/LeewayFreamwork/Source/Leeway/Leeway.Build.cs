@@ -36,6 +36,8 @@ public class Leeway : ModuleRules
 			"NetCore",
             //add by kun 2025.01.30 for the HPBar;
 			"UMG",
+            //add by kun 2025.02.03 for Attack Direction Attachment;
+            "MotionWarping",
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]

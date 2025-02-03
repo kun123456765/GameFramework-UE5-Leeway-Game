@@ -14,26 +14,3 @@ class UGameplayAbility_Attack : public UBaseGameplayAbility
 {
 	GENERATED_BODY()
 };
-
-
-
-//struct FTargetingShape
-//{
-//	FPrimitive
-//};
-
-
-UCLASS(MinimalAPI, Blueprintable)
-class UGameplayAbility_Melee : public UBaseGameplayAbility
-{
-	GENERATED_BODY()
-
-public:
-
-protected:
-	//void PerformTargeting();
-
-	UFUNCTION(BlueprintCallable)
-	void OnTakeDamage(const FGameplayTag& TriggerTag, const FGameplayAbilityTargetDataHandle& TargetData);
-
-};
