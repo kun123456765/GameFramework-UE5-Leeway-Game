@@ -10,4 +10,6 @@
 #include "DrawDebugHelpers.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/PlayerState.h"
+#include "GameplayTagsManager.h"
+#include "NativeGameplayTags.h"
 #include "Leeway/PreEngine/Runtime/Core/Public/Logging/LWLogMacros.h"
