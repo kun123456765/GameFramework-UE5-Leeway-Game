@@ -53,12 +53,14 @@ FOverlapResult* FindClosestActorInFront(const TArray<FOverlapResult>& Overlaps, 
         return nullptr;
     }
 
+    float HalfAngle = DegreeThreshold * 0.5f;
+
     // 获取 Actor X 的位置和正前方向量
     const FVector XLocation = X->GetActorLocation();
     const FVector XForward = X->GetActorForwardVector();
 
     // 预计算角度的余弦值（优化计算）
-    const float CosTheta = FMath::Cos(FMath::DegreesToRadians(DegreeThreshold));
+    const float CosTheta = FMath::Cos(FMath::DegreesToRadians(HalfAngle));
 
     FOverlapResult* ClosestResult = nullptr;
     float MinDistanceSquared = FLT_MAX; // 记录最小距离的平方（避免开根号）
@@ -86,7 +88,7 @@ FOverlapResult* FindClosestActorInFront(const TArray<FOverlapResult>& Overlaps, 
         const float DotProduct = FVector::DotProduct(XForward, NormalizedDir);
 
         // 检查是否在角度阈值内
-        if (DotProduct >= CosTheta || true)
+        if (DotProduct >= CosTheta)
         {
             // 计算距离平方（优化性能）
             const float DistanceSquared = DirToTarget.SizeSquared();
@@ -102,68 +104,6 @@ FOverlapResult* FindClosestActorInFront(const TArray<FOverlapResult>& Overlaps, 
 
     return ClosestResult;
 }
-//
-//#include "GameFramework/Character.h"
-//#include "Components/CapsuleComponent.h"
-//#include "Components/SkeletalMeshComponent.h"
-//void DrawDebugCharacter(ACharacter* Character, FColor const& Color, bool bPersistentLines = false, float LifeTime = -1.f, uint8 DepthPriority = 0, float Thickness = 0);
-//void DrawDebugCapsuleComponent(UCapsuleComponent* CapsuleComp, FColor const& Color, bool bPersistentLines = false, float LifeTime = -1.f, uint8 DepthPriority = 0, float Thickness = 0);
-//void DrawDebugCharacter(ACharacter* Character, FColor const& Color, bool bPersistentLines, float LifeTime, uint8 DepthPriority, float Thickness)
-//{
-//    if (Character)
-//    {
-//        DrawDebugCapsuleComponent(Character->GetCapsuleComponent(), Color, bPersistentLines, LifeTime, DepthPriority, Thickness);
-//    }
-//}
-//void DrawDebugCapsuleComponent(UCapsuleComponent* CapsuleComp, FColor const& Color, bool bPersistentLines, float LifeTime, uint8 DepthPriority, float Thickness)
-//{
-//    if (CapsuleComp)
-//    {
-//        DrawDebugCapsule(CapsuleComp->GetWorld(), CapsuleComp->GetComponentLocation(), CapsuleComp->GetScaledCapsuleHalfHeight(), CapsuleComp->GetScaledCapsuleRadius(), CapsuleComp->GetComponentQuat(), Color, bPersistentLines, LifeTime, DepthPriority, Thickness);
-//    }
-//}
-//
-//void DrawDebugSection(UWorld* World, FVector const& Center, float Radius, float DegreeThreshold, FQuat Rotation, FColor const& Color, int Segments = 30, bool bPersistentLines = false, float LifeTime = -1.f, uint8 DepthPriority = 0, float Thickness = 0)
-//{
-//    if (!World)
-//    {
-//        return; // 确保 World 有效
-//    }
-//
-//    // 计算扇形区域的左右边界角度
-//    float HalfAngle = DegreeThreshold * 0.5f;
-//    float StartAngle = -HalfAngle;
-//    float EndAngle = HalfAngle;
-//
-//    // 计算每个分段的角度增量
-//    float AngleIncrement = DegreeThreshold / Segments;
-//
-//    // 获取旋转后的前向和上方向量
-//    FVector Forward = Rotation.GetForwardVector();
-//    FVector Up = Rotation.GetUpVector();
-//
-//    // 绘制扇形区域的边界线
-//    FVector StartDir = Forward.RotateAngleAxis(StartAngle, Up);
-//    FVector EndDir = Forward.RotateAngleAxis(EndAngle, Up);
-//
-//    FVector StartPoint = Center + StartDir * Radius;
-//    FVector EndPoint = Center + EndDir * Radius;
-//
-//    DrawDebugLine(World, Center, StartPoint, Color, bPersistentLines, LifeTime, DepthPriority, Thickness);
-//    DrawDebugLine(World, Center, EndPoint, Color, bPersistentLines, LifeTime, DepthPriority, Thickness);
-//
-//    // 绘制扇形区域的圆弧
-//    FVector PreviousPoint = StartPoint;
-//    for (int i = 1; i <= Segments; i++)
-//    {
-//        float Angle = StartAngle + i * AngleIncrement;
-//        FVector CurrentDir = Forward.RotateAngleAxis(Angle, Up);
-//        FVector CurrentPoint = Center + CurrentDir * Radius;
-//
-//        DrawDebugLine(World, PreviousPoint, CurrentPoint, Color, bPersistentLines, LifeTime, DepthPriority, Thickness);
-//        PreviousPoint = CurrentPoint;
-//    }
-//}
 
 void UGameplayAbility_Melee::UpdateWarpTarget()
 {
@@ -181,7 +121,7 @@ void UGameplayAbility_Melee::UpdateWarpTarget()
             bool bHitted = GetWorld()->OverlapMultiByObjectType(Overlaps, OverlapCenter, FQuat::Identity, QueryParams, Shape);
             if (bHitted)
             {
-                if (FOverlapResult* Closest = FindClosestActorInFront(Overlaps, AvatarActor, 360))
+                if (FOverlapResult* Closest = FindClosestActorInFront(Overlaps, AvatarActor, 350))
                 {
                     MotionWarpingTargetActor = Closest->GetActor();
                     NSLeeway::DrawDebugSection(1, GetWorld(), OverlapCenter, Shape.GetSphereRadius(), 350, AvatarActor->GetActorQuat(), FColor::Yellow, false, 3);

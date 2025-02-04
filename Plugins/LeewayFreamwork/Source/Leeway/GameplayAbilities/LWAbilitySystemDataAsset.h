@@ -66,7 +66,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FGrantedHandleSet
+struct FGrantedSetHandle
 {
 	GENERATED_USTRUCT_BODY()
 

@@ -11,6 +11,7 @@ DEFINE_LOG_CATEGORY(LogBaseCharacter);
 
 ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<UBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
+    , bRagdollEnabled(false)
 {
     MainSkeletalMesh = GetMesh();
     MainSkeletalMesh->OnAnimInitialized.AddDynamic(this, &ThisClass::OnAnimInitialized);
@@ -27,8 +28,9 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(ABaseCharacter, Stance);
     //DOREPLIFETIME_CONDITION(ABaseCharacter, Stance, COND_SkipOwner);
+    DOREPLIFETIME(ABaseCharacter, Stance);
+    DOREPLIFETIME(ABaseCharacter, bRagdollEnabled);
 }
 
 void ABaseCharacter::PostInitializeComponents()
@@ -72,12 +74,54 @@ void ABaseCharacter::OnPlayerStateChangedImpl(APlayerState* NewPlayerState, APla
         // how to reset the previous ability system component?
     }
 
-    if (CurASC)
-    {
-        CurASC->SetAvatarActor(this);
-    }
+    ChangeASC(CurASC);
+}
 
-    ASC = CurASC;
+void ABaseCharacter::ChangeASC(UBaseAbilitySystemComponent* NewASC)
+{
+    if (NewASC != ASC)
+    {
+        if (ASC.IsValid())
+        {
+            PreUninitASC();
+            {
+                ASC->UninitAbilitySystem();
+                ASC = nullptr;
+            }
+            PostUninitASC();
+        }
+
+        PreInitASC();
+        {
+            ASC = NewASC;
+            if (ASC.IsValid())
+            {
+                ASC->SetAvatarActor(this);
+                ASC->InitAbilitySystem(DA_AbilitySystem);
+            }
+        }
+        PostInitASC();
+    }
+}
+
+void ABaseCharacter::PreInitASC()
+{
+}
+
+void ABaseCharacter::PostInitASC()
+{
+    if (ASC.IsValid())
+    {
+        //ASC-
+    }
+}
+
+void ABaseCharacter::PreUninitASC()
+{
+}
+
+void ABaseCharacter::PostUninitASC()
+{
 }
 
 void ABaseCharacter::CreatePartialMeshComponent(TObjectPtr<USkeletalMeshComponent>& Comp, FName Name, FTransform Trans)
@@ -109,11 +153,7 @@ void ABaseCharacter::ChangeStance(const FGameplayTag& InStance)
 void ABaseCharacter::OnAnimInitialized()
 {
     OnStanceChanged();
-}
-
-const FGameplayTag& ABaseCharacter::GetStance() const
-{
-    return Stance;
+    //OnRagdollChanged();
 }
 
 void ABaseCharacter::SetStance(const FGameplayTag& Value)
@@ -124,11 +164,6 @@ void ABaseCharacter::SetStance(const FGameplayTag& Value)
         Stance = Value;
         OnStanceChanged(OldValue);
     }
-}
-
-void ABaseCharacter::OnRep_Stance(FGameplayTag PrevStanceTag)
-{
-    OnStanceChanged(PrevStanceTag);
 }
 
 void ABaseCharacter::OnStanceChanged(FGameplayTag PrevStanceTag)
@@ -149,6 +184,53 @@ void ABaseCharacter::OnStanceChanged(FGameplayTag PrevStanceTag)
                 MeshComp->LinkAnimClassLayers(*CurrentABPClass);
             }
         }
+    }
+}
+
+void ABaseCharacter::SetRagdollEnable(bool Value)
+{
+    if (bRagdollEnabled != Value)
+    {
+        bool OldValue = bRagdollEnabled;
+        bRagdollEnabled = Value;
+        OnRagdollChanged(OldValue);
+    }
+}
+
+void ABaseCharacter::OnRagdollChanged_Implementation(bool bPrevEnable)
+{
+    if (GetRagdollEnable())
+    {
+        if (auto* SKM = GetMesh())
+        {
+            RagdollOriginState.MeshTransform = SKM->GetRelativeTransform();
+            RagdollOriginState.MeshCollisionEnabled = SKM->GetCollisionEnabled();
+
+            SKM->SetAllBodiesSimulatePhysics(true);
+            SKM->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+        }
+
+        RagdollOriginState.MovementMode = GetCharacterMovement()->MovementMode;
+        RagdollOriginState.CustomMovementMode = GetCharacterMovement()->CustomMovementMode;
+        RagdollOriginState.CapsuleCollisionEnabled = GetCapsuleComponent()->GetCollisionEnabled();
+
+        GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        GetCharacterMovement()->DisableMovement();
+    }
+    else
+    {
+        if (auto* SKM = GetMesh())
+        {
+            SKM->SetRelativeTransform(RagdollOriginState.MeshTransform);
+            SKM->SetAllBodiesSimulatePhysics(false);
+            SKM->SetCollisionEnabled(RagdollOriginState.MeshCollisionEnabled);
+        }
+
+        GetCapsuleComponent()->SetCollisionEnabled(RagdollOriginState.CapsuleCollisionEnabled);
+        GetCharacterMovement()->SetMovementMode(RagdollOriginState.MovementMode, RagdollOriginState.CustomMovementMode);
+        //GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        //GetCharacterMovement()->SetDefaultMovementMode();
     }
 }
 

@@ -5,13 +5,16 @@
 #include "GameplayAbility_HealthRegeneration.h"
 #include "Leeway/GameplayAbilities/AttributeSets/CombatAttributeSet.h"
 
+UGameplayAbility_HealthRegeneration::UGameplayAbility_HealthRegeneration(const FObjectInitializer& ObjectInitializer)
+    :Super(ObjectInitializer)
+{
+    ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
+    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+    NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
+}
+
 void UGameplayAbility_HealthRegeneration::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
-    if (!CommitAbility(Handle, ActorInfo, ActivationInfo))
-    {
-        return;
-    }
-
     if (PeriodicHealingEffect.Get())
     {
         GEHandle = ApplyGameplayEffectToOwner(Handle, ActorInfo, ActivationInfo, PeriodicHealingEffect.GetDefaultObject(), 1, 1);
@@ -20,7 +23,7 @@ void UGameplayAbility_HealthRegeneration::ActivateAbility(const FGameplayAbility
         FGameplayTag DataTag;
         float Magnitude = 0;
         FetchSetByCallerMagnitude(DataTag, Magnitude);
-        ASC->UpdateActiveGameplayEffectSetByCallerMagnitude(GEHandle, DataTag, Magnitude);        
+        ASC->UpdateActiveGameplayEffectSetByCallerMagnitude(GEHandle, DataTag, Magnitude);
         GetWorld()->GetTimerManager().SetTimer(CheckInhibitionTimer, FTimerDelegate::CreateUObject(this, &ThisClass::OnTimer_CheckInhibition), 1, true);
     }
 

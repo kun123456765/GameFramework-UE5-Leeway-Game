@@ -12,6 +12,13 @@ public:
         return Singleton;
     }
 
+    struct FGALabel
+    {
+        FGALabel();
+        FNativeGameplayTag IgnoreToDeath;
+        FNativeGameplayTag IgnoreToUninitial;
+    } GALabel;
+
     struct FSetByCaller
     {
         FSetByCaller();
@@ -19,6 +26,13 @@ public:
         FNativeGameplayTag Replenish;
         FNativeGameplayTag Damage;
     } SetByCaller;
+
+    struct FGameEvent
+    {
+        FGameEvent();
+        FNativeGameplayTag Death;
+        FNativeGameplayTag Revive;
+    } GameEvent;
 
 private:
     FLWGameplayTags() {}

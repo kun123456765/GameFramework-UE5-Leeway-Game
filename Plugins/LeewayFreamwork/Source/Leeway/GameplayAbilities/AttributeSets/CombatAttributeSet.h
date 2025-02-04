@@ -36,9 +36,9 @@ struct FOutOfHealthInfo
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
-	float bOutOfHealth = false;
+	bool bOutOfHealth = false;
 	UPROPERTY(BlueprintReadWrite)
-	float bShieldBroken = false;
+	bool bShieldBroken = false;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamgeDelegate, FDamageInfo const&, DamageInfo);
@@ -107,8 +107,13 @@ private:
 	FGameplayAttributeData Replenish;
 
 public:
+	UPROPERTY(BlueprintAssignable)
 	FOnDamgeDelegate OnDamge;
+
+	UPROPERTY(BlueprintAssignable)
 	FOnHealingDelegate OnHealing;
+
+	UPROPERTY(BlueprintAssignable)
 	FOnOutOfHealthDelegate OnOutOfHealth;
 
 	UPROPERTY(BlueprintReadWrite, Transient)

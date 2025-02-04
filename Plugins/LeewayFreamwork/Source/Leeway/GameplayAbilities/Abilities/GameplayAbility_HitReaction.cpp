@@ -11,6 +11,14 @@
 #include "Leeway/Animation/AnimMetaData/LWAnimMetaData_HitReaction.h"
 #include "Leeway/GameplayAbilities/Abilities/TargetActors/GATargetActor_MeleeWeapon.h"
 
+UGameplayAbility_HitReaction::UGameplayAbility_HitReaction(const FObjectInitializer& ObjectInitializer)
+    : Super(ObjectInitializer)
+{
+    ReplicationPolicy = EGameplayAbilityReplicationPolicy::ReplicateYes;
+    InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+    NetExecutionPolicy = EGameplayAbilityNetExecutionPolicy::ServerInitiated;
+}
+
 bool UGameplayAbility_HitReaction::ShouldAbilityRespondToEvent(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayEventData* Payload) const
 {
     if (Super::ShouldAbilityRespondToEvent(ActorInfo, Payload))

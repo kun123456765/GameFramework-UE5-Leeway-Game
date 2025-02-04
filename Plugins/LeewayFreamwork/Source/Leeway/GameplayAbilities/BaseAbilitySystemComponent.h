@@ -123,13 +123,18 @@ public:
     virtual void OnRep_ReplicatedAnimMontage() override;
 	//--------------------
 
+public:
+	void InitAbilitySystem(TObjectPtr<ULWAbilitySystemDataAsset> GrantedSet);
+	void UninitAbilitySystem();
+
 private:
-	void InitGrantedByDataAsset(AActor* InOwnerActor, AActor* InAvatarActor);
+	void InitGrantedByDataAsset(TObjectPtr<ULWAbilitySystemDataAsset> GrantedSet);
 	void UninitAllGrantedAndInstancedObjects();
 
 private:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<ULWAbilitySystemDataAsset> DA_AbilitySystem;
 
-	FGrantedHandleSet GrantedHandleSet;
+	bool bGrantedByInited = false;
+	FGrantedSetHandle GrantedSetHandle;
 };

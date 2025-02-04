@@ -9,9 +9,21 @@
 
 FLWGameplayTags FLWGameplayTags::Singleton;
 
+FLWGameplayTags::FGALabel::FGALabel()
+    : LW_DEFINE_GAMEPLAY_TAG(GALabel, IgnoreToDeath)
+    , LW_DEFINE_GAMEPLAY_TAG(GALabel, IgnoreToUninitial)
+{
+}
+
 FLWGameplayTags::FSetByCaller::FSetByCaller()
     : LW_DEFINE_GAMEPLAY_TAG(SetByCaller, Healing)
     , LW_DEFINE_GAMEPLAY_TAG(SetByCaller, Replenish)
     , LW_DEFINE_GAMEPLAY_TAG(SetByCaller, Damage)
+{
+}
+
+FLWGameplayTags::FGameEvent::FGameEvent()
+    : LW_DEFINE_GAMEPLAY_TAG(GameEvent, Death)
+    , LW_DEFINE_GAMEPLAY_TAG(GameEvent, Revive)
 {
 }

@@ -13,4 +13,7 @@ UCLASS(MinimalAPI, Blueprintable)
 class UGameplayAbility_Attack : public UBaseGameplayAbility
 {
 	GENERATED_BODY()
+public:
+    UGameplayAbility_Attack(const FObjectInitializer& ObjectInitializer);
+
 };

@@ -4,6 +4,7 @@
 
 #include "BaseAbilitySystemComponent.h"
 #include "Leeway/GameplayAbilities/AttributeSets/CombatAttributeSet.h"
+#include "Leeway/GameFramework/LWGameplayTags.h"
 
 namespace NSLeeway
 {
@@ -65,26 +66,26 @@ void UBaseAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AAc
 {
     UE_CLOG_EX(NSLeeway::ASCLogLevel, LogAbilitySystemComponent, Log, TEXT("InitAbilityActorInfo"));
 
-    bool bNeedRebuildGranted = false;
-    if (IsOwnerActorAuthoritative() && (InOwnerActor != GetOwnerActor() || InAvatarActor != GetAvatarActor()))
-    {
-        if (InAvatarActor->IsA<APlayerState>())
-        {
-            // Player的放在 Character::PlayerStateChanged 流程里做;
-            bNeedRebuildGranted = false;
-        }
-        else
-        {
-            bNeedRebuildGranted = true;
-        }
-    }
+    //bool bNeedRebuildGranted = false;
+    //if (IsOwnerActorAuthoritative() && (InOwnerActor != GetOwnerActor() || InAvatarActor != GetAvatarActor()))
+    //{
+    //    if (InAvatarActor->IsA<APlayerState>())
+    //    {
+    //        // Player的放在 Character::PlayerStateChanged 流程里做;
+    //        bNeedRebuildGranted = false;
+    //    }
+    //    else
+    //    {
+    //        bNeedRebuildGranted = true;
+    //    }
+    //}
 
     Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor);
 
-    if (bNeedRebuildGranted)
-    {
-        InitGrantedByDataAsset(InOwnerActor, InAvatarActor);
-    }
+    //if (bNeedRebuildGranted)
+    //{
+    //    InitGrantedByDataAsset(InOwnerActor, InAvatarActor);
+    //}
 }
 
 void UBaseAbilitySystemComponent::ClearActorInfo()
@@ -179,9 +180,34 @@ void UBaseAbilitySystemComponent::OnRep_ReplicatedAnimMontage()
     Super::OnRep_ReplicatedAnimMontage();
 }
 
-void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, AActor* InAvatarActor)
+void UBaseAbilitySystemComponent::InitAbilitySystem(TObjectPtr<ULWAbilitySystemDataAsset> GrantedSet)
 {
-    if (DA_AbilitySystem)
+    if (bGrantedByInited)
+    {
+        return;
+    }
+    bGrantedByInited = true;
+
+    // 残留的GA都先清理掉;
+    ClearAllAbilities();
+
+    InitGrantedByDataAsset(GrantedSet);
+}
+
+void UBaseAbilitySystemComponent::UninitAbilitySystem()
+{
+    if (!bGrantedByInited)
+    {
+        return;
+    }
+    bGrantedByInited = false;
+    
+    UninitAllGrantedAndInstancedObjects();
+}
+
+void UBaseAbilitySystemComponent::InitGrantedByDataAsset(TObjectPtr<ULWAbilitySystemDataAsset> GrantedSet)
+{
+    if (GrantedSet)
     {
         bool bIsAuthority = GetOwner()->GetLocalRole() == ENetRole::ROLE_Authority;
         bool bIsAutonomous = GetOwner()->GetLocalRole() == ENetRole::ROLE_AutonomousProxy;
@@ -189,11 +215,11 @@ void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, A
 
         if (bIsAuthority)
         {
-            if (DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets.Num() > 0)
+            if (GrantedSet->GrantedSet.AttriSetSet.AttriSets.Num() > 0)
             {
                 // 添加属性集;
                 TArray<UAttributeSet*> NewAttriSets;
-                for (const TSubclassOf<UAttributeSet> AttriSetClass : DA_AbilitySystem->GrantedSet.AttriSetSet.AttriSets)
+                for (const TSubclassOf<UAttributeSet> AttriSetClass : GrantedSet->GrantedSet.AttriSetSet.AttriSets)
                 {
                     UAttributeSet* NewAttriSet = NewObject<UAttributeSet>(GetOwner(), AttriSetClass);
                     NewAttriSets.Add(NewAttriSet);
@@ -214,7 +240,7 @@ void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, A
         }
 
         // 添加能力值;
-        for (const FGrantedAbility& GrantedAbility : DA_AbilitySystem->GrantedSet.AbilitySet.Abilities)
+        for (const FGrantedAbility& GrantedAbility : GrantedSet->GrantedSet.AbilitySet.Abilities)
         {
             auto* CDO_Ability = GrantedAbility.AbilityClass->GetDefaultObject<UGameplayAbility>();
 
@@ -229,7 +255,7 @@ void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, A
                 // 添加能力;
                 FGameplayAbilitySpec NewAbilitySpec = BuildAbilitySpecFromClass(GrantedAbility.AbilityClass, GrantedAbility.Level);
                 auto GAHandle = GiveAbility(NewAbilitySpec);
-                GrantedHandleSet.Abilities.Add(GAHandle);
+                GrantedSetHandle.Abilities.Add(GAHandle);
 
                 // 自动激活;
                 if (GrantedAbility.bActivateOnGiveAbility)
@@ -243,8 +269,10 @@ void UBaseAbilitySystemComponent::InitGrantedByDataAsset(AActor* InOwnerActor, A
 
 void UBaseAbilitySystemComponent::UninitAllGrantedAndInstancedObjects()
 {
-    CancelAbilities();
-    ClearAllAbilities();
+    FGameplayTagContainer AbilityTypesToIgnore;
+    AbilityTypesToIgnore.AddTag(FLWGameplayTags::Get().GALabel.IgnoreToUninitial);
+    CancelAbilities(nullptr, &AbilityTypesToIgnore);
+    
     RemoveActiveEffects(FGameplayEffectQuery(), -1);
     RemoveAllGameplayCues();
 }
