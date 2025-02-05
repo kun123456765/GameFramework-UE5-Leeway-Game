@@ -15,15 +15,13 @@ public class LeewayEditor : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
-            "InputCore",
-            "EnhancedInput",
-            "AIModule",
-            "Niagara",
+            "UnrealEd",
+            //"LevelEditor",
         });
 
         PrivateDependencyModuleNames.AddRange(new string[]
         {
-
+            "Leeway",
         });
 
         // Uncomment if you are using Slate UI

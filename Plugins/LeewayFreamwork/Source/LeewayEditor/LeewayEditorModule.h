@@ -12,4 +12,7 @@ class FLeewayEditorModule : public IModuleInterface
 public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+
+private:
+	void OnActorSelectionChanged(const TArray<UObject*>& NewSelection, bool bForceRefresh);
 };
