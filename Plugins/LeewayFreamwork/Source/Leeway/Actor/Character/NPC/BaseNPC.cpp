@@ -25,7 +25,6 @@ void ABaseNPC::PostInitializeComponents()
 void ABaseNPC::BeginPlay()
 {
     Super::BeginPlay();
-    UE_LOGD2(TEXT("WorldType=%s"), LexToString(GetWorld()->WorldType));
 }
 
 void ABaseNPC::Tick(float DeltaSeconds)

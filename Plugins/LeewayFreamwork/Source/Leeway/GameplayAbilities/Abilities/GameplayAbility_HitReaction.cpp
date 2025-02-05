@@ -50,7 +50,6 @@ void UGameplayAbility_HitReaction::ActivateAbility(const FGameplayAbilitySpecHan
 {
     if (!TriggerEventData)
     {
-        UE_LOGD2();
         return;
     }
 
