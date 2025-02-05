@@ -8,7 +8,7 @@
 ABasePlayerState::ABasePlayerState(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
-	CreateAbilitySystemComponent(ASC);
+	ASC = CreateDefaultSubobject<UGameAbilitySystemComponent>(UBaseAbilitySystemComponent::AbilitySystemComponentName);
 
 	// todo kun 2025.01.25
 	// ASC需要高频，这个怎么改一改呢?
@@ -18,9 +18,4 @@ ABasePlayerState::ABasePlayerState(const FObjectInitializer& ObjectInitializer)
 inline UAbilitySystemComponent* ABasePlayerState::GetAbilitySystemComponent() const
 {
 	return ASC;
-}
-
-void ABasePlayerState::CreateAbilitySystemComponent(TObjectPtr<UGameAbilitySystemComponent>& Comp)
-{
-	Comp = CreateDefaultSubobject<UGameAbilitySystemComponent>(TEXT("GASComponent"));
 }

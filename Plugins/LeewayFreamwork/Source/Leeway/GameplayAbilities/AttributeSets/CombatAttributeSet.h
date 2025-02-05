@@ -108,13 +108,13 @@ private:
 
 public:
 	UPROPERTY(BlueprintAssignable)
-	FOnDamgeDelegate OnDamge;
+	mutable FOnDamgeDelegate OnDamge;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnHealingDelegate OnHealing;
+	mutable FOnHealingDelegate OnHealing;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnOutOfHealthDelegate OnOutOfHealth;
+	mutable FOnOutOfHealthDelegate OnOutOfHealth;
 
 	UPROPERTY(BlueprintReadWrite, Transient)
 	float LastDamageWorldTime;

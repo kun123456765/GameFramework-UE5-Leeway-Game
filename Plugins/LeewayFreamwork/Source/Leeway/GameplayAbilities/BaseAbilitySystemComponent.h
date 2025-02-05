@@ -78,6 +78,9 @@ public:
 #endif
 
 public:
+	static FName AbilitySystemComponentName;
+
+public:
     // note by kun 2025.01.24
     // 初始化使用的Actor的相关基本信息，GAS系统启动的入口;
 	// 已存在的GA/GE并不会删除，但是会得知这个变化(OnAvatarSet);

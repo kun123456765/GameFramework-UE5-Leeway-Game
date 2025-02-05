@@ -12,16 +12,17 @@ UCLASS(MinimalAPI, Blueprintable)
 class ABasePlayer : public ABaseCharacter
 {
     GENERATED_BODY()
+
 public:
     ABasePlayer(const FObjectInitializer& ObjectInitializer);
-    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-protected:
+public:
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    virtual void Tick(float DeltaSeconds) override;
+    virtual void OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState) override;
     virtual void PossessedBy(AController* NewController) override;
     virtual void UnPossessed() override;
 
-    virtual void Tick(float DeltaSeconds) override;
-
-#pragma region Combat
-#pragma endregion Combat
+protected:
+    virtual void OnPlayerStateChangedImpl(APlayerState* NewPlayerState, APlayerState* OldPlayerState);
 };

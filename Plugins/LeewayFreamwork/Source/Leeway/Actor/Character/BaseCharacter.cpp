@@ -4,10 +4,11 @@
 
 #include "BaseCharacter.h"
 #include "Leeway/Component/BaseCharacterMovementComponent.h"
+#include "Leeway/GameplayAbilities/AttributeSets/CombatAttributeSet.h"
 #include "Leeway/GameplayAbilities/BaseAbilitySystemComponent.h"
+#include "Leeway/GameFramework/LWGameplayTags.h"
 
 DEFINE_LOG_CATEGORY(LogBaseCharacter);
-
 
 ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<UBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -54,27 +55,18 @@ UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
     return ASC.Get();
 }
 
-void ABaseCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState)
+void ABaseCharacter::HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData& Payload)
 {
-    if (LastPlayerState != OldPlayerState)
+    if (ASC.IsValid())
     {
-        LastPlayerState = OldPlayerState;
+        FScopedPredictionWindow NewScopedWindow(ASC.Get(), true);
+        ASC->HandleGameplayEvent(FLWGameplayTags::Get().GameEvent.Death, &Payload);
     }
-    OnPlayerStateChangedImpl(NewPlayerState, LastPlayerState.Get());
 }
 
-void ABaseCharacter::OnPlayerStateChangedImpl(APlayerState* NewPlayerState, APlayerState* OldPlayerState)
+void ABaseCharacter::HandleGameplayEvent(const FGameplayTag& EventTag)
 {
-    auto* OldASC = OldPlayerState ? (OldPlayerState->Implements<UAbilitySystemInterface>() ? Cast<UBaseAbilitySystemComponent>(Cast<IAbilitySystemInterface>(OldPlayerState)->GetAbilitySystemComponent()) : nullptr) : nullptr;
-    auto* CurASC = NewPlayerState ? (NewPlayerState->Implements<UAbilitySystemInterface>() ? Cast<UBaseAbilitySystemComponent>(Cast<IAbilitySystemInterface>(NewPlayerState)->GetAbilitySystemComponent()) : nullptr) : nullptr;
-
-    if (OldASC != CurASC)
-    {
-        //todo kun 2025.01.31
-        // how to reset the previous ability system component?
-    }
-
-    ChangeASC(CurASC);
+    HandleGameplayEvent(EventTag, FGameplayEventData());
 }
 
 void ABaseCharacter::ChangeASC(UBaseAbilitySystemComponent* NewASC)
@@ -112,7 +104,12 @@ void ABaseCharacter::PostInitASC()
 {
     if (ASC.IsValid())
     {
-        //ASC-
+        // 对于客户端，该属性可能没来得及复制回来;
+        // 可能对于客户端，需要新的“死亡事件源”;
+        if (const auto* CombatAttributeSet = ASC->GetSet<UCombatAttributeSet>())
+        {
+            CombatAttributeSet->OnOutOfHealth.AddDynamic(this, &ThisClass::HandleOutOfHealth);
+        }
     }
 }
 
@@ -122,6 +119,16 @@ void ABaseCharacter::PreUninitASC()
 
 void ABaseCharacter::PostUninitASC()
 {
+}
+
+void ABaseCharacter::HandleOutOfHealth(const FOutOfHealthInfo& OutOfHealthInfo)
+{
+    if (ASC.IsValid())
+    {
+        FScopedPredictionWindow NewScopedWindow(ASC.Get(), true);
+        FGameplayEventData PayLoad;
+        ASC->HandleGameplayEvent(FLWGameplayTags::Get().GameEvent.Death, &PayLoad);
+    }
 }
 
 void ABaseCharacter::CreatePartialMeshComponent(TObjectPtr<USkeletalMeshComponent>& Comp, FName Name, FTransform Trans)

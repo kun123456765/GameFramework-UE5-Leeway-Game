@@ -62,6 +62,9 @@ namespace NSLeeway
     static FLWIntACC MontageLogLevel(TEXT("lw.debug.asc.montage.log"), ECVF_Default);
 }
 
+
+FName UBaseAbilitySystemComponent::AbilitySystemComponentName(TEXT("AbilitySystemComp"));
+
 void UBaseAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
 {
     UE_CLOG_EX(NSLeeway::ASCLogLevel, LogAbilitySystemComponent, Log, TEXT("InitAbilityActorInfo"));
@@ -239,7 +242,7 @@ void UBaseAbilitySystemComponent::InitGrantedByDataAsset(TObjectPtr<ULWAbilitySy
             }
         }
 
-        // 添加能力值;
+        // 添加能力;
         for (const FGrantedAbility& GrantedAbility : GrantedSet->GrantedSet.AbilitySet.Abilities)
         {
             auto* CDO_Ability = GrantedAbility.AbilityClass->GetDefaultObject<UGameplayAbility>();

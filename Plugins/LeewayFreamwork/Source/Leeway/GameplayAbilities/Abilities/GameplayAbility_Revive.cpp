@@ -51,9 +51,11 @@ void UGameplayAbility_Revive::EndAbility(const FGameplayAbilitySpecHandle Handle
     {
         if (HasAuthority(&CurrentActivationInfo))
         {
-            ABasePlayerState* PlayerState = Cast<ABasePlayerState>(GetOwningActorFromActorInfo());
-            auto* PC = PlayerState->GetPlayerController();
-            GetWorld()->GetTimerManager().SetTimerForNextTick(PC, &APlayerController::ServerRestartPlayer_Implementation);
+            if (ABasePlayerState* PlayerState = Cast<ABasePlayerState>(GetOwningActorFromActorInfo()))
+            {
+                auto* PC = PlayerState->GetPlayerController();
+                GetWorld()->GetTimerManager().SetTimerForNextTick(PC, &APlayerController::ServerRestartPlayer_Implementation);
+            }
         }
     }
     else

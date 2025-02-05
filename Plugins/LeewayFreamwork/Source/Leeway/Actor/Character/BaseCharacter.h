@@ -18,6 +18,7 @@
 
 class UBaseAbilitySystemComponent;
 class UBaseCharacterMovementComponent;
+struct FOutOfHealthInfo;
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogBaseCharacter, Log, All);
@@ -26,12 +27,13 @@ UCLASS(MinimalAPI, Blueprintable)
 class ABaseCharacter : public ACharacter
     , public IAbilitySystemInterface
 {
-    GENERATED_UCLASS_BODY()
+    GENERATED_BODY()
+public:
+    ABaseCharacter(const FObjectInitializer& ObjectInitializer);
 
 public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual void PostInitializeComponents() override;
-    virtual void OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState) override;
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
 
@@ -40,9 +42,9 @@ public:
     //----------------------------------------
 public:
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
-protected:
-    virtual void OnPlayerStateChangedImpl(APlayerState* NewPlayerState, APlayerState* OldPlayerState);
+    UFUNCTION(BlueprintCallable)
+    void HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData& Payload);
+    void HandleGameplayEvent(const FGameplayTag& EventTag);
     
 protected:
     void ChangeASC(UBaseAbilitySystemComponent* NewASC);
@@ -57,14 +59,16 @@ protected:
     virtual void PostUninitASC();
 
 protected:
+    UFUNCTION()
+    void HandleOutOfHealth(const FOutOfHealthInfo& OutOfHealthInfo);
+
+protected:
     UPROPERTY(BlueprintReadOnly, Category = "Leeway|ASC", meta = (AllowPrivateAccess = "true"))
     TWeakObjectPtr<UBaseAbilitySystemComponent> ASC;
 
 private:
     UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Leeway|ASC", meta = (AllowPrivateAccess = "true"))
     TObjectPtr<ULWAbilitySystemDataAsset> DA_AbilitySystem;
-
-    TWeakObjectPtr<APlayerState> LastPlayerState;
 
 
 #pragma region Locomotion
@@ -170,4 +174,7 @@ private:
     UFUNCTION(BlueprintCallable)
     void DebugDrawBoneByIndex(int BoneIndex, FLinearColor Color) const;
 #pragma endregion Combat
+
+private:
+    friend class ABaseActorSpawner;
 };

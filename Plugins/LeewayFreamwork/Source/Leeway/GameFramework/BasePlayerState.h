@@ -24,7 +24,6 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 private:
-	void CreateAbilitySystemComponent(TObjectPtr<UGameAbilitySystemComponent>& Comp);
 
 private:
 	UPROPERTY(Category = BaseCharacter, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
