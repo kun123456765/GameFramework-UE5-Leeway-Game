@@ -55,18 +55,18 @@ UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
     return ASC.Get();
 }
 
-void ABaseCharacter::HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData& Payload)
+void ABaseCharacter::HandleGameplayEvent(FGameplayTag EventTag, FGameplayEventData Payload)
+{
+    HandleGameplayEvent(EventTag, &Payload);
+}
+
+void ABaseCharacter::HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData* Payload)
 {
     if (ASC.IsValid())
     {
         FScopedPredictionWindow NewScopedWindow(ASC.Get(), true);
-        ASC->HandleGameplayEvent(FLWGameplayTags::Get().GameEvent.Death, &Payload);
+        ASC->UAbilitySystemComponent::HandleGameplayEvent(EventTag, Payload);
     }
-}
-
-void ABaseCharacter::HandleGameplayEvent(const FGameplayTag& EventTag)
-{
-    HandleGameplayEvent(EventTag, FGameplayEventData());
 }
 
 void ABaseCharacter::ChangeASC(UBaseAbilitySystemComponent* NewASC)

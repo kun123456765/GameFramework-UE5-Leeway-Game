@@ -133,6 +133,13 @@ public:
 private:
 	void InitGrantedByDataAsset(TObjectPtr<ULWAbilitySystemDataAsset> GrantedSet);
 	void UninitAllGrantedAndInstancedObjects();
+	
+public:
+	//--------------------
+	// helpers
+	//--------------------
+	UFUNCTION(BlueprintCallable)
+	void HandleGameplayEventBP(FGameplayTag EventTag, FGameplayEventData Payload);
 
 private:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))

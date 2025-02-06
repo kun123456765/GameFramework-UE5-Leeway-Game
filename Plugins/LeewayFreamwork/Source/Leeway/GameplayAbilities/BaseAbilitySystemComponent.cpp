@@ -279,3 +279,8 @@ void UBaseAbilitySystemComponent::UninitAllGrantedAndInstancedObjects()
     RemoveActiveEffects(FGameplayEffectQuery(), -1);
     RemoveAllGameplayCues();
 }
+
+void UBaseAbilitySystemComponent::HandleGameplayEventBP(FGameplayTag EventTag, FGameplayEventData Payload)
+{
+    HandleGameplayEvent(EventTag, &Payload);
+}

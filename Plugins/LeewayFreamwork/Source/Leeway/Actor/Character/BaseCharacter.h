@@ -43,8 +43,8 @@ public:
 public:
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
     UFUNCTION(BlueprintCallable)
-    void HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData& Payload);
-    void HandleGameplayEvent(const FGameplayTag& EventTag);
+    void HandleGameplayEvent(FGameplayTag EventTag, FGameplayEventData Payload);
+    void HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData* Payload = nullptr);
     
 protected:
     void ChangeASC(UBaseAbilitySystemComponent* NewASC);

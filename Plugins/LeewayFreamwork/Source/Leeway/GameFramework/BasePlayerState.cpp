@@ -19,3 +19,15 @@ inline UAbilitySystemComponent* ABasePlayerState::GetAbilitySystemComponent() co
 {
 	return ASC;
 }
+
+
+void ABasePlayerState::HandleGameplayEvent(FGameplayTag EventTag, FGameplayEventData Payload)
+{
+    HandleGameplayEvent(EventTag, &Payload);
+}
+
+void ABasePlayerState::HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData* Payload)
+{
+	FScopedPredictionWindow NewScopedWindow(ASC.Get(), true);
+	ASC->UAbilitySystemComponent::HandleGameplayEvent(EventTag, Payload);
+}
