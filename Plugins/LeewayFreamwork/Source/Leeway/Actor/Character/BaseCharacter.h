@@ -14,10 +14,12 @@
 #include "Leeway/Animation/AnimLayers/BaseAnimLayers.h"
 #include "Leeway/Animation/AnimDataAsset/LocomotionAnimDataAsset.h"
 #include "Leeway/GameplayAbilities/LWAbilitySystemDataAsset.h"
+#include "Leeway/Component/BaseCharacterMovementComponent.h"
 #include "BaseCharacter.generated.h"
 
 class UBaseAbilitySystemComponent;
 class UBaseCharacterMovementComponent;
+class UMotionWarpingComponent;
 struct FOutOfHealthInfo;
 
 
@@ -63,12 +65,16 @@ protected:
     void HandleOutOfHealth(const FOutOfHealthInfo& OutOfHealthInfo);
 
 protected:
-    UPROPERTY(BlueprintReadOnly, Category = "Leeway|ASC", meta = (AllowPrivateAccess = "true"))
+    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
     TWeakObjectPtr<UBaseAbilitySystemComponent> ASC;
 
 private:
     UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Leeway|ASC", meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<ULWAbilitySystemDataAsset> DA_AbilitySystem;
+    TObjectPtr<ULWAbilitySystemDataAsset> AbilitySystemDataAsset;
+
+    UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+    TObjectPtr<UMotionWarpingComponent> MotionWarppingComponent;
+    static FName MotionWarppingComponentName;
 
 
 #pragma region Locomotion
@@ -96,7 +102,7 @@ protected:
 
 private:
     UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Leeway|Locomotion", meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<ULocomotionAnimDataAsset> DA_LocomotionAnim;
+    TObjectPtr<ULocomotionAnimDataAsset> LocomotionAnimDataAsset;
 
     UPROPERTY(ReplicatedUsing = OnRep_Stance, EditDefaultsOnly, Category = "Leeway|Locomotion", BlueprintGetter = GetStance, BlueprintSetter = SetStance)
     FGameplayTag Stance;
@@ -118,9 +124,6 @@ protected:
     UFUNCTION(BlueprintNativeEvent)
     void OnRagdollChanged(bool bPrevValue = false);
 
-    UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<UBaseCharacterMovementComponent> BaseCharacterMovement;
-
 protected:
     UPROPERTY(ReplicatedUsing = OnRep_RagdollEnabled, BlueprintReadWrite, EditDefaultsOnly, Category = "Leeway|Ragdoll", BlueprintGetter = GetRagdollEnable, BlueprintSetter = SetRagdollEnable)
     uint8 bRagdollEnabled : 1;
@@ -141,12 +144,9 @@ protected:
     // Mesh Composite
     //----------------------------------------
 private:
-    void CreatePartialMeshComponent(TObjectPtr<USkeletalMeshComponent>& Comp, FName Name, FTransform Trans = FTransform::Identity);
+    void CreatePartialMeshComponent(const TObjectPtr<USkeletalMeshComponent> MainMeshComp, TObjectPtr<USkeletalMeshComponent>& Comp, FName Name, FTransform Trans = FTransform::Identity);
 
 protected:
-    UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-    TObjectPtr<USkeletalMeshComponent> MainSkeletalMesh;
-
     //UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
     //TObjectPtr<USkeletalMeshComponent> Head;
 
@@ -174,6 +174,15 @@ private:
     UFUNCTION(BlueprintCallable)
     void DebugDrawBoneByIndex(int BoneIndex, FLinearColor Color) const;
 #pragma endregion Combat
+
+public:
+    UFUNCTION(BlueprintCallable)
+    UBaseAbilitySystemComponent* GetBaseAbilitySystemComponent() { return ASC.Get(); }
+    const UBaseAbilitySystemComponent* GetBaseAbilitySystemComponent() const { return ASC.Get(); }
+
+    UFUNCTION(BlueprintCallable)
+    UBaseCharacterMovementComponent* GetBaseCharacterMovement() { return GetCharacterMovement<UBaseCharacterMovementComponent>(); }
+    const UBaseCharacterMovementComponent* GetBaseCharacterMovement() const { return GetCharacterMovement<UBaseCharacterMovementComponent>(); }
 
 private:
     friend class ABaseActorSpawner;

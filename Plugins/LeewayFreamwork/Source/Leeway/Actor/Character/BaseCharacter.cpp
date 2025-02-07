@@ -7,22 +7,29 @@
 #include "Leeway/GameplayAbilities/AttributeSets/CombatAttributeSet.h"
 #include "Leeway/GameplayAbilities/BaseAbilitySystemComponent.h"
 #include "Leeway/GameFramework/LWGameplayTags.h"
+#include "MotionWarpingComponent.h"
 
 DEFINE_LOG_CATEGORY(LogBaseCharacter);
+
+FName ABaseCharacter::MotionWarppingComponentName(TEXT("MotionWarppingComp"));
 
 ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer.SetDefaultSubobjectClass<UBaseCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
     , bRagdollEnabled(false)
 {
-    MainSkeletalMesh = GetMesh();
-    MainSkeletalMesh->OnAnimInitialized.AddDynamic(this, &ThisClass::OnAnimInitialized);
-    //CreatePartialMeshComponent(Head, TEXT("Head"), FTransform::Identity);
-    //CreatePartialMeshComponent(Hair, TEXT("Hair"), FTransform::Identity);
-    //CreatePartialMeshComponent(Torso, TEXT("Torso"), FTransform::Identity);
-    //CreatePartialMeshComponent(Legs, TEXT("Legs"), FTransform::Identity);
-    //CreatePartialMeshComponent(Hands, TEXT("Hands"), FTransform::Identity);
-    //CreatePartialMeshComponent(Feet, TEXT("Feet"), FTransform::Identity);
-    BaseCharacterMovement = GetCharacterMovement<UBaseCharacterMovementComponent>();
+    if (auto* MainSkeletalMesh = GetMesh())
+    {
+        MainSkeletalMesh->OnAnimInitialized.AddDynamic(this, &ThisClass::OnAnimInitialized);
+
+        //CreatePartialMeshComponent(Head, TEXT("Head"), FTransform::Identity);
+        //CreatePartialMeshComponent(Hair, TEXT("Hair"), FTransform::Identity);
+        //CreatePartialMeshComponent(Torso, TEXT("Torso"), FTransform::Identity);
+        //CreatePartialMeshComponent(Legs, TEXT("Legs"), FTransform::Identity);
+        //CreatePartialMeshComponent(Hands, TEXT("Hands"), FTransform::Identity);
+        //CreatePartialMeshComponent(Feet, TEXT("Feet"), FTransform::Identity);
+    }
+
+    MotionWarppingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(MotionWarppingComponentName);
 }
 
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -90,7 +97,7 @@ void ABaseCharacter::ChangeASC(UBaseAbilitySystemComponent* NewASC)
             if (ASC.IsValid())
             {
                 ASC->SetAvatarActor(this);
-                ASC->InitAbilitySystem(DA_AbilitySystem);
+                ASC->InitAbilitySystem(AbilitySystemDataAsset);
             }
         }
         PostInitASC();
@@ -132,7 +139,7 @@ void ABaseCharacter::HandleOutOfHealth(const FOutOfHealthInfo& OutOfHealthInfo)
     }
 }
 
-void ABaseCharacter::CreatePartialMeshComponent(TObjectPtr<USkeletalMeshComponent>& Comp, FName Name, FTransform Trans)
+void ABaseCharacter::CreatePartialMeshComponent(const TObjectPtr<USkeletalMeshComponent> MainMeshComp, TObjectPtr<USkeletalMeshComponent>& Comp, FName Name, FTransform Trans)
 {
     Comp = CreateDefaultSubobject<USkeletalMeshComponent>(Name);
     if (Comp)
@@ -144,8 +151,8 @@ void ABaseCharacter::CreatePartialMeshComponent(TObjectPtr<USkeletalMeshComponen
         Comp->bCastDynamicShadow = true;
         Comp->bAffectDynamicIndirectLighting = true;
         Comp->PrimaryComponentTick.TickGroup = TG_PrePhysics;
-        Comp->SetupAttachment(MainSkeletalMesh);
-        Comp->SetLeaderPoseComponent(MainSkeletalMesh);
+        Comp->SetupAttachment(MainMeshComp);
+        Comp->SetLeaderPoseComponent(MainMeshComp);
         static FName MeshCollisionProfileName(TEXT("CharacterMesh"));
         Comp->SetCollisionProfileName(MeshCollisionProfileName);
         Comp->SetGenerateOverlapEvents(false);
@@ -178,16 +185,16 @@ void ABaseCharacter::OnStanceChanged(FGameplayTag PrevStanceTag)
 {
     if (auto* MeshComp = GetMesh())
     {
-        if (DA_LocomotionAnim)
+        if (LocomotionAnimDataAsset)
         {
             if (PrevStanceTag != FGameplayTag::EmptyTag && PrevStanceTag != Stance)
             {
-                if (auto* PrevABPClass = DA_LocomotionAnim->AnimSet.AnimLayersClasses.Find(PrevStanceTag))
+                if (auto* PrevABPClass = LocomotionAnimDataAsset->AnimSet.AnimLayersClasses.Find(PrevStanceTag))
                 {
                     MeshComp->UnlinkAnimClassLayers(*PrevABPClass);
                 }
             }
-            if (auto* CurrentABPClass = DA_LocomotionAnim->AnimSet.AnimLayersClasses.Find(Stance))
+            if (auto* CurrentABPClass = LocomotionAnimDataAsset->AnimSet.AnimLayersClasses.Find(Stance))
             {
                 MeshComp->LinkAnimClassLayers(*CurrentABPClass);
             }

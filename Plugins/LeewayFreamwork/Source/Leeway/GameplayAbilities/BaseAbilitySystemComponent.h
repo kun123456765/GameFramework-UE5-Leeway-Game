@@ -143,6 +143,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int32 HandleGameplayEventBP(FGameplayTag EventTag, FGameplayEventData Payload);
 
+	// note by kun 205.02.07
+	// 扩展内部实现，增加TriggedAbilitySpecArray的Delegate
+	// 配合FTriggerAbilityCallbackScope使用;
 	virtual int32 HandleGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload) override;
 
 private:
@@ -158,6 +161,7 @@ private:
 	friend struct FTriggerAbilityCallbackScope;
 };
 
+// TriggedAbilitySpecArray的Delegate，特殊写法是为了防止误用;
 struct FTriggerAbilityCallbackScope
 {
 	FTriggerAbilityCallbackScope(UBaseAbilitySystemComponent* InASC)

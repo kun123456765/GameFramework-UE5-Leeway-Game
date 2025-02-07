@@ -53,8 +53,9 @@ protected:
 protected:
     FGameplayTag GetTriggerTag(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const;
     UBaseAbilitySystemComponent* GetASC(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const;
+
+private:
     void OnAbilityActivate(UGameplayAbility* ActivatedAbility, TWeakObjectPtr<UBehaviorTreeComponent> OwnerComp, uint8* NodeMemory);
-	//UFUNCTION()
 	void OnAbilityEnded(const FAbilityEndedData& EndedData, TWeakObjectPtr<UBehaviorTreeComponent> OwnerComp, uint8* NodeMemory);
     void OnCallback(const TArray<FGameplayAbilitySpecHandle>& ActivatedHandles, TWeakObjectPtr<UBehaviorTreeComponent> OwnerComp, uint8* NodeMemory);
 
