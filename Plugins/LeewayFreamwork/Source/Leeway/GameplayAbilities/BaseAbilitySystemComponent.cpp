@@ -280,7 +280,57 @@ void UBaseAbilitySystemComponent::UninitAllGrantedAndInstancedObjects()
     RemoveAllGameplayCues();
 }
 
-void UBaseAbilitySystemComponent::HandleGameplayEventBP(FGameplayTag EventTag, FGameplayEventData Payload)
+int32 UBaseAbilitySystemComponent::HandleGameplayEventBP(FGameplayTag EventTag, FGameplayEventData Payload)
 {
-    HandleGameplayEvent(EventTag, &Payload);
+    return HandleGameplayEvent(EventTag, &Payload);
+}
+
+int32 UBaseAbilitySystemComponent::HandleGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload)
+{
+    int32 TriggeredCount = 0;
+    TArray<FGameplayAbilitySpecHandle> ActivatedHandles;
+    FGameplayTag CurrentTag = EventTag;
+    ABILITYLIST_SCOPE_LOCK();
+    while (CurrentTag.IsValid())
+    {
+        if (GameplayEventTriggeredAbilities.Contains(CurrentTag))
+        {
+            const TArray<FGameplayAbilitySpecHandle>& TriggeredAbilityHandles = GameplayEventTriggeredAbilities[CurrentTag];
+
+            for (const FGameplayAbilitySpecHandle& AbilityHandle : TriggeredAbilityHandles)
+            {
+                if (TriggerAbilityFromGameplayEvent(AbilityHandle, AbilityActorInfo.Get(), EventTag, Payload, *this))
+                {
+                    ActivatedHandles.Add(AbilityHandle);
+                    TriggeredCount++;
+                }
+            }
+        }
+
+        CurrentTag = CurrentTag.RequestDirectParent();
+    }
+
+    if (ActivatedHandles.Num())
+    {
+        TriggerAbilityCallback.ExecuteIfBound(ActivatedHandles);
+    }
+
+    if (FGameplayEventMulticastDelegate* Delegate = GenericGameplayEventCallbacks.Find(EventTag))
+    {
+        // Make a copy before broadcasting to prevent memory stomping
+        FGameplayEventMulticastDelegate DelegateCopy = *Delegate;
+        DelegateCopy.Broadcast(Payload);
+    }
+
+    // Make a copy in case it changes due to callbacks
+    TArray<TPair<FGameplayTagContainer, FGameplayEventTagMulticastDelegate>> LocalGameplayEventTagContainerDelegates = GameplayEventTagContainerDelegates;
+    for (TPair<FGameplayTagContainer, FGameplayEventTagMulticastDelegate>& SearchPair : LocalGameplayEventTagContainerDelegates)
+    {
+        if (SearchPair.Key.IsEmpty() || EventTag.MatchesAny(SearchPair.Key))
+        {
+            SearchPair.Value.Broadcast(EventTag, Payload);
+        }
+    }
+
+    return TriggeredCount;
 }

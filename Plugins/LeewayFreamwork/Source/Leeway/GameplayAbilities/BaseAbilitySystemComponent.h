@@ -10,6 +10,8 @@
 #include "LWAbilitySystemDataAsset.h"
 #include "BaseAbilitySystemComponent.generated.h"
 
+DECLARE_DELEGATE_OneParam(FTriggerAbilityFromGameplayEventDelegate, const TArray<FGameplayAbilitySpecHandle>&);
+
 UCLASS(MinimalAPI, Blueprintable, Abstract)
 class UBaseAbilitySystemComponent : public UAbilitySystemComponent
 {
@@ -139,7 +141,12 @@ public:
 	// helpers
 	//--------------------
 	UFUNCTION(BlueprintCallable)
-	void HandleGameplayEventBP(FGameplayTag EventTag, FGameplayEventData Payload);
+	int32 HandleGameplayEventBP(FGameplayTag EventTag, FGameplayEventData Payload);
+
+	virtual int32 HandleGameplayEvent(FGameplayTag EventTag, const FGameplayEventData* Payload) override;
+
+private:
+	FTriggerAbilityFromGameplayEventDelegate TriggerAbilityCallback;
 
 private:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
@@ -147,4 +154,31 @@ private:
 
 	bool bGrantedByInited = false;
 	FGrantedSetHandle GrantedSetHandle;
+
+	friend struct FTriggerAbilityCallbackScope;
+};
+
+struct FTriggerAbilityCallbackScope
+{
+	FTriggerAbilityCallbackScope(UBaseAbilitySystemComponent* InASC)
+	{
+		ASC = InASC;
+		ASC->TriggerAbilityCallback.BindRaw(this, &FTriggerAbilityCallbackScope::OnCallback);
+	}
+
+	~FTriggerAbilityCallbackScope()
+	{
+		ASC->TriggerAbilityCallback.Unbind();
+	}
+
+private:
+	void OnCallback(const TArray<FGameplayAbilitySpecHandle>& ActivatedHandles)
+	{
+		TriggerAbilityCallback.ExecuteIfBound(ActivatedHandles);
+	}
+
+	UBaseAbilitySystemComponent* ASC;
+
+public:
+	FTriggerAbilityFromGameplayEventDelegate TriggerAbilityCallback;
 };

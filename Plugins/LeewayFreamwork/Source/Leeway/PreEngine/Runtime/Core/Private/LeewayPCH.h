@@ -15,6 +15,7 @@
 #include "DrawDebugHelpers.h"
 #include "GameplayTagsManager.h"
 #include "NativeGameplayTags.h"
+#include "VisualLogger/VisualLogger.h"
 #include "Animation/AnimMontage.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"

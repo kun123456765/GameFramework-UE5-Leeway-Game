@@ -55,18 +55,19 @@ UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
     return ASC.Get();
 }
 
-void ABaseCharacter::HandleGameplayEvent(FGameplayTag EventTag, FGameplayEventData Payload)
+int32 ABaseCharacter::HandleGameplayEvent(FGameplayTag EventTag, FGameplayEventData Payload)
 {
-    HandleGameplayEvent(EventTag, &Payload);
+    return HandleGameplayEvent(EventTag, &Payload);
 }
 
-void ABaseCharacter::HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData* Payload)
+int32 ABaseCharacter::HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData* Payload)
 {
+    int32 TriggeredCount = 0;
     if (ASC.IsValid())
     {
-        FScopedPredictionWindow NewScopedWindow(ASC.Get(), true);
-        ASC->UAbilitySystemComponent::HandleGameplayEvent(EventTag, Payload);
+        TriggeredCount = ASC->HandleGameplayEvent(EventTag, Payload);
     }
+    return TriggeredCount;
 }
 
 void ABaseCharacter::ChangeASC(UBaseAbilitySystemComponent* NewASC)

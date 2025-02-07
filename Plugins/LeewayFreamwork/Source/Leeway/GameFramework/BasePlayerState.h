@@ -23,8 +23,8 @@ public:
 public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UFUNCTION(BlueprintCallable)
-	void HandleGameplayEvent(FGameplayTag EventTag, FGameplayEventData Payload);
-	void HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData* Payload = nullptr);
+	int32 HandleGameplayEvent(FGameplayTag EventTag, FGameplayEventData Payload);
+	int32 HandleGameplayEvent(const FGameplayTag& EventTag, const FGameplayEventData* Payload = nullptr);
 
 private:
 

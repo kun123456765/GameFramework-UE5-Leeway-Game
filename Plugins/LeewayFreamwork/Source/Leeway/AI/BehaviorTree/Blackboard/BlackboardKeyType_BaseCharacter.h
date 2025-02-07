@@ -4,19 +4,19 @@
 
 #pragma once
 
-#include "BehaviorTree/Blackboard/BlackboardKeyType_Object.h"
+#include "BehaviorTree/Blackboard/BlackboardKeyType.h"
 #include "BlackboardKeyType_BaseCharacter.generated.h"
 
 #undef LW_BBKEY_TYPE_OBJECT_CLASS
 #define LW_BBKEY_TYPE_OBJECT_CLASS ABaseCharacter
 class LW_BBKEY_TYPE_OBJECT_CLASS;
 
-UCLASS(EditInlineNew, meta = (DisplayName = "BaseCharacter"), MinimalAPI)
+UCLASS(EditInlineNew, meta = (DisplayName = "LWBaseCharacter"), MinimalAPI)
 class UBlackboardKeyType_BaseCharacter : public UBlackboardKeyType
 {
 	GENERATED_UCLASS_BODY()
 	
-	typedef class LW_BBKEY_TYPE_OBJECT_CLASS* FDataType;
+	typedef LW_BBKEY_TYPE_OBJECT_CLASS* FDataType;
 	static const FDataType InvalidValue;
 
 	UPROPERTY(Category = Blackboard, EditDefaultsOnly, NoClear, meta = (AllowAbstract = "1"))
